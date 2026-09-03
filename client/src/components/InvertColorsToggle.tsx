@@ -15,12 +15,11 @@ const TROLL_FILTERS = [
 ];
 
 export const InvertColorsToggle: React.FC<InvertColorsToggleProps> = ({ className = "", style }) => {
-  // Start with invert colors ON by default
-  const [checked, setChecked] = useState<boolean>(true);
+  // Start with invert colors OFF so dark red/black background color scheme shines
+  const [checked, setChecked] = useState<boolean>(false);
 
-  // Apply invert(1) on initial mount
   React.useEffect(() => {
-    document.documentElement.style.filter = "invert(1)";
+    document.documentElement.style.filter = "none";
   }, []);
 
   const handleClick = () => {
