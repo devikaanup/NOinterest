@@ -907,11 +907,6 @@ export default function Home() {
       <div className="noise-layer" aria-hidden="true" />
       <div className="shell-ornament ornament-left" aria-hidden="true">01 / THE GAUNTLET</div>
       <div className="shell-ornament ornament-right" aria-hidden="true">NO REAL AUTH · NO MERCY</div>
-      <div className="troll-toolbar login-troll-toolbar" style={{ position: "relative", zIndex: 10, marginBottom: "16px" }}>
-        <InvertColorsToggle />
-        <ConnectToInternetButton />
-        <TurnOffButton />
-      </div>
       <section className="card-wrap" style={{ transform: `translate3d(${jitter.x}px, ${jitter.y}px, 0) rotate(${jitter.rotate}deg)` }}>
         <div className="topline">
           <div className="mark"><span className="mark-dot" /> TG / 001</div>
@@ -982,6 +977,12 @@ export default function Home() {
           </div>
           {formMessage && <p className="form-message">{formMessage}</p>}
         </form>
+
+        <div className="troll-toolbar login-troll-toolbar">
+          <InvertColorsToggle />
+          <ConnectToInternetButton />
+          <TurnOffButton />
+        </div>
 
         <div className="card-footer">
           <span>© 2026 The Gauntlet</span>

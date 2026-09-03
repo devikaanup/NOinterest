@@ -100,8 +100,8 @@ export default function PhysicsFeed({
     const { Engine, Bodies, Composite } = Matter;
 
     const engine = Engine.create({
-      enableSleeping: true,
-      gravity: { x: 0, y: 1.6, scale: 0.001 },
+      enableSleeping: false, // Never freeze cards in mid-air
+      gravity: { x: 0, y: 2.2, scale: 0.001 },
     });
     engineRef.current = engine;
 
@@ -112,21 +112,21 @@ export default function PhysicsFeed({
     const floor = Bodies.rectangle(width / 2, height + 40, width * 3, 80, {
       isStatic: true,
       label: "boundary-floor",
-      friction: 0.88,
-      restitution: 0.22,
+      friction: 0.8,
+      restitution: 0.25,
     });
 
     const leftWall = Bodies.rectangle(-40, height / 2, 80, height * 3, {
       isStatic: true,
       label: "boundary-left",
-      friction: 0.3,
+      friction: 0.05, // low friction so cards slide down smoothly
       restitution: 0.2,
     });
 
     const rightWall = Bodies.rectangle(width + 40, height / 2, 80, height * 3, {
       isStatic: true,
       label: "boundary-right",
-      friction: 0.3,
+      friction: 0.05, // low friction so cards slide down smoothly
       restitution: 0.2,
     });
 
@@ -219,16 +219,15 @@ export default function PhysicsFeed({
         const spawnY = -cardHeight - 20 - Math.random() * 80;
         const initialAngle = (Math.random() - 0.5) * 0.45; // ~ -13° to +13°
         const initialVx = (Math.random() - 0.5) * 3.5;
-        const initialVy = 6 + Math.random() * 5;
+        const initialVy = 8 + Math.random() * 6;
         const initialAv = (Math.random() - 0.5) * 0.04;
 
         const body = Matter.Bodies.rectangle(spawnX, spawnY, cardWidth, cardHeight, {
-          chamfer: { radius: 5 },
-          restitution: 0.22,
-          friction: 0.85,
-          frictionAir: 0.024,
-          density: 0.0022,
-          sleepThreshold: 22,
+          chamfer: { radius: 6 },
+          restitution: 0.32,
+          friction: 0.12, // Lower friction to prevent getting stuck
+          frictionAir: 0.006, // Natural falling speed without stalling
+          density: 0.001,
           label: `card-${pin.id}`,
         });
 
