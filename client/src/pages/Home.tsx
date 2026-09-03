@@ -344,12 +344,12 @@ function AppButton({
   );
 }
 
-const TOPICS = ["Cats", "Cars", "Food", "Travel", "Fashion", "Architecture", "Nature", "Anime", "Interior Design", "Photography"];
+const TOPICS = ["Random Ideas", "Cats", "Cars", "Food", "Travel", "Fashion", "Architecture", "Nature", "Anime", "Interior Design", "Photography"];
 
 function fetchImagesForTopic(topic: string): Promise<Pin[]> {
   return Promise.resolve(Array.from({ length: 18 }, (_, index) => ({
     id: `${topic}-${index}-${Math.random().toString(36).slice(2, 6)}`,
-    title: `${topic} idea #${index + 1}`,
+    title: `Random photo #${index + 1}`,
     imageUrl: getPlaceholderImage(300, index % 3 === 0 ? 320 : 260, `${topic}-${index}`),
     topic,
     description: `A completely legitimate visual thought about ${topic.toLowerCase()}, assembled by a machine with no taste.`,
@@ -383,7 +383,7 @@ function useDashboardSound() {
 }
 
 function Dashboard() {
-  const [topic, setTopic] = useState("Cats");
+  const [topic, setTopic] = useState("Random Ideas");
   const [pins, setPins] = useState<Pin[]>([]);
   const [search, setSearch] = useState("");
   const [rouletteOpen, setRouletteOpen] = useState(false);
@@ -500,7 +500,13 @@ function Dashboard() {
       <header className="feed-heading">
         <div>
           <span>THE DISCOVERY FEED</span>
-          <h1>Ideas for <i>{topic}</i></h1>
+          <h1>
+            {topic.toLowerCase() === "random ideas" ? (
+              <>Random <i>Ideas</i></>
+            ) : (
+              <>Ideas for <i>{topic}</i></>
+            )}
+          </h1>
         </div>
         <div className="feed-meta">
           <b>{pins.length || "—"}</b>
@@ -845,8 +851,12 @@ export default function Home() {
           {formMessage && <p className="form-message">{formMessage}</p>}
         </form>
 
-        <div className="troll-toolbar login-troll-toolbar">
+        {/* Pushed to the bottom corners of the triangle */}
+        <div className="login-corner-left">
           <InvertColorsToggle />
+        </div>
+
+        <div className="login-corner-right">
           <ConnectToInternetButton />
           <TurnOffButton />
         </div>
