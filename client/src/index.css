@@ -266,3 +266,69 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 @keyframes glitch { 0%,100% { transform: translate(0); text-shadow: 3px 0 #ff5ca8; } 50% { transform: translate(3px,-2px); text-shadow: -3px 0 #a8ff00; } }
 @keyframes star-drift { from { transform: translateY(0); } to { transform: translateY(40px); } }
 @media (max-width: 1100px) { .pin-grid { column-count: 4; } }
+
+/* Escape Banner */
+.escape-banner {
+  width: min(720px, 92vw);
+  margin: 1.5rem auto;
+  background: linear-gradient(135deg, rgba(46, 213, 115, 0.2), rgba(39, 174, 96, 0.12));
+  border: 3px solid #2ed573;
+  border-radius: 14px;
+  padding: 1.25rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(46, 213, 115, 0.25);
+  position: relative;
+  z-index: 50;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.escape-banner-content h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #177a3d;
+  margin: 0 0 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+.escape-banner-content p {
+  font-size: 0.92rem;
+  color: #1f2922;
+  margin: 0;
+  line-height: 1.4;
+  font-family: 'Outfit', sans-serif;
+}
+
+.btn-secondary {
+  background: #171717;
+  color: #ffffff;
+  border: 2px solid #000;
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  font-family: 'Outfit', sans-serif;
+}
+
+.btn-secondary:hover {
+  background: #333333;
+  transform: translateY(-1px);
+}

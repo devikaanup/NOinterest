@@ -1,0 +1,218 @@
+/* EscapeMazeModal Overlay & HUD Styles */
+
+.escape-maze-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 10, 24, 0.88) url('/background.png') center center / cover no-repeat;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  box-sizing: border-box;
+  animation: escapeMazeFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes escapeMazeFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.escape-maze-card {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 980px;
+  background: #251f38;
+  border: 4px solid #000000;
+  border-radius: 14px;
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.7),
+    0 0 0 2px rgba(181, 160, 248, 0.35),
+    0 0 40px rgba(167, 144, 241, 0.3);
+  overflow: hidden;
+}
+
+/* Header & HUD */
+.escape-maze-hud {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.4rem;
+  background: #191426;
+  border-bottom: 3px solid #000000;
+}
+
+.escape-maze-hud-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #f1edff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.escape-maze-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #ff4757;
+  color: #ffffff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.escape-maze-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.escape-maze-fails {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.85rem;
+  color: #ffd32a;
+  background: #110d1c;
+  padding: 0.45rem 0.85rem;
+  border: 2px solid #3d325a;
+  border-radius: 6px;
+  text-shadow: 0 0 8px rgba(255, 211, 42, 0.4);
+}
+
+/* Canvas Area */
+.escape-maze-canvas-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #191426;
+  padding: 0.75rem 1rem;
+  box-sizing: border-box;
+}
+
+.escape-maze-canvas {
+  border: 3px solid #000000;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  outline: none;
+}
+
+/* Footer & Controls Hint */
+.escape-maze-footer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1.4rem;
+  background: #120e1d;
+  border-top: 2px solid #2d2447;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  color: #a29bb8;
+  box-sizing: border-box;
+}
+
+.escape-maze-keys-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.escape-maze-key-badge {
+  background: #251f38;
+  color: #e5e0f5;
+  border: 1px solid #4a3e6b;
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  box-shadow: 0 2px 0 #110d1c;
+}
+
+.escape-maze-hint-objective {
+  color: #8aff8a;
+  font-weight: 500;
+}
+
+/* Background Graffiti Callout - "THE DISAPPEARANCE IS INTENTIONAL" */
+.escape-maze-bg-graffiti {
+  position: absolute;
+  right: clamp(16px, 3.8vw, 64px);
+  top: 50%;
+  transform: translateY(-50%) rotate(2.5deg);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 1;
+  user-select: none;
+}
+
+.graffiti-arrow-svg {
+  width: clamp(80px, 8vw, 110px);
+  height: clamp(50px, 5vw, 70px);
+  margin-bottom: 2px;
+  filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.9));
+}
+
+.graffiti-text {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Permanent Marker', cursive, sans-serif;
+  font-size: clamp(1.4rem, 2.7vw, 2.4rem);
+  line-height: 0.92;
+  letter-spacing: 0.05em;
+  color: #39ff14;
+  text-shadow:
+    0 0 10px rgba(57, 255, 20, 0.9),
+    0 0 25px rgba(57, 255, 20, 0.5),
+    2px 2px 0px #000000;
+  text-transform: uppercase;
+}
+
+.graffiti-text span {
+  display: block;
+}
+
+@media (max-width: 1250px) {
+  .escape-maze-bg-graffiti {
+    right: 14px;
+    opacity: 0.85;
+    transform: translateY(-50%) scale(0.85);
+  }
+}
+
+@media (max-width: 1080px) {
+  .escape-maze-bg-graffiti {
+    position: fixed;
+    right: 18px;
+    top: 24px;
+    transform: none;
+    opacity: 0.75;
+  }
+  .graffiti-arrow-svg {
+    display: none;
+  }
+}
+

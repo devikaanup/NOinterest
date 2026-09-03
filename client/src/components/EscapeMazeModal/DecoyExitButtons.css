@@ -1,0 +1,159 @@
+.decoy-exit-container {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  overflow: hidden;
+}
+
+.decoy-exit-btn {
+  pointer-events: auto;
+  position: fixed;
+  width: 116px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #e60023 0%, #b71540 100%);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 9999px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 
+    0 4px 14px rgba(230, 0, 35, 0.45),
+    0 0 12px rgba(255, 71, 87, 0.35);
+  user-select: none;
+  white-space: nowrap;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+  will-change: transform, left, top;
+}
+
+.decoy-exit-btn:hover {
+  background: linear-gradient(135deg, #ff2a4b 0%, #cf1b49 100%);
+  box-shadow: 
+    0 6px 20px rgba(230, 0, 35, 0.7),
+    0 0 20px rgba(255, 71, 87, 0.6);
+  transform: scale(1.05);
+}
+
+.decoy-exit-btn:active {
+  transform: scale(0.95);
+}
+
+.decoy-exit-icon {
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   Full-Screen "WASTED" Takeover Overlay
+   ========================================================================== */
+
+.wasted-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(30, 0, 5, 0.94) 0%, rgba(5, 5, 10, 0.98) 100%);
+  backdrop-filter: blur(14px) grayscale(60%);
+  -webkit-backdrop-filter: blur(14px) grayscale(60%);
+  animation: wastedBackdropFade 0.4s ease-out forwards;
+  pointer-events: auto;
+  user-select: none;
+}
+
+@keyframes wastedBackdropFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.wasted-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  max-width: 90vw;
+}
+
+/* Badge starts small and slowly becomes very big over 2s */
+.wasted-badge-img {
+  width: 280px;
+  height: auto;
+  filter: drop-shadow(0 0 30px rgba(230, 0, 35, 0.85)) drop-shadow(0 10px 40px rgba(0, 0, 0, 0.9));
+  animation: wastedGrowAnim 2s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
+  will-change: transform;
+}
+
+@keyframes wastedGrowAnim {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 1;
+  }
+}
+
+/* Taunt message animates in after 2 seconds with evil purple glow */
+.wasted-taunt-msg {
+  margin-top: 4.5rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+  font-weight: 800;
+  color: #f3e8ff;
+  letter-spacing: 0.02em;
+  text-shadow: 
+    0 0 16px rgba(168, 85, 247, 0.9),
+    0 0 35px rgba(147, 51, 234, 0.7),
+    0 4px 12px rgba(0, 0, 0, 0.95);
+  animation: tauntFadeIn 0.4s cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+@keyframes tauntFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.wasted-evil-emoji {
+  display: inline-block;
+  font-size: 1.25em;
+  filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.95));
+  animation: evilBounce 1s infinite alternate ease-in-out;
+}
+
+@keyframes evilBounce {
+  from {
+    transform: scale(1) rotate(-4deg);
+  }
+  to {
+    transform: scale(1.18) rotate(6deg);
+  }
+}

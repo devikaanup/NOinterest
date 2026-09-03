@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import PhysicsFeed, { type Pin, PinPlaceholder, dashboardTone } from "@/components/PhysicsFeed";
+import { EscapeMazeModal } from "@/components/EscapeMazeModal";
 
 type Tile = {
   id: number;
@@ -420,7 +421,8 @@ function Dashboard() {
   const [mathProblem, setMathProblem] = useState(() => makeMathProblem());
   const [mathAnswer, setMathAnswer] = useState("");
   const [mathMessage, setMathMessage] = useState("");
-  const [closeScreen, setCloseScreen] = useState(false);
+  const [isEscapeMazeOpen, setIsEscapeMazeOpen] = useState(false);
+  const [hasEscaped, setHasEscaped] = useState(false);
   const [universe, setUniverse] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pageCount, setPageCount] = useState(1);
@@ -450,12 +452,6 @@ function Dashboard() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [loadPins, pageCount, topic]);
-
-  useEffect(() => {
-    if (!closeScreen) return;
-    const timer = window.setTimeout(() => setCloseScreen(false), 4500);
-    return () => window.clearTimeout(timer);
-  }, [closeScreen]);
 
   const spinWheel = useCallback(() => {
     if (rouletteSpinning) return;
@@ -550,10 +546,18 @@ function Dashboard() {
     }
   };
 
-  const closeFake = () => { sound.sting(); setCloseScreen(true); };
+  const handleEscapeSuccess = () => {
+    setIsEscapeMazeOpen(false);
+    setHasEscaped(true);
+  };
+
+  const closeFake = () => {
+    sound.sting();
+    setHasEscaped(false);
+    setIsEscapeMazeOpen(true);
+  };
   const selectPin = (pin: Pin) => { sound.thud(); setSelectedPin(pin); setSaveStep(0); setSaved(false); };
 
-  if (closeScreen) return <div className="fake-close-screen" onClick={() => setCloseScreen(false)}><div className="fake-close-copy"><strong>no.. no no no no no no NO NO NO NO NO NO NONONONONNONONONO</strong><span>i thought we were having a good time</span><em>☹</em></div></div>;
   if (universe) return <div className="universe-screen"><div className="stars" /><div className="universe-copy"><span>THE LAST SCROLL</span><p>You have reached the end of the universe.<br />Your journey is complete.<br /><i>Go back to sleep.</i></p><button onClick={() => { setUniverse(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Wake up</button></div></div>;
 
   return (
@@ -567,6 +571,35 @@ function Dashboard() {
         </form>
         <button className="fake-x" onClick={closeFake}>×</button>
       </nav>
+      {hasEscaped && (
+        <section className="escape-banner" aria-live="polite">
+          <div className="escape-banner-content">
+            <h3>🎉 You escaped! Escape maze cleared!</h3>
+            <p>
+              The World&apos;s Hardest Game maze was beaten. You broke free of the NOinterest exit lock!
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                setHasEscaped(false);
+                setIsEscapeMazeOpen(true);
+              }}
+            >
+              Play Again
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setHasEscaped(false)}
+            >
+              Dismiss
+            </button>
+          </div>
+        </section>
+      )}
       <header className="feed-heading">
         <div>
           <span>THE DISCOVERY FEED</span>
@@ -581,7 +614,7 @@ function Dashboard() {
         pins={pins}
         onSelectPin={selectPin}
         onThudSound={sound.thud}
-        isPaused={closeScreen || universe}
+        isPaused={isEscapeMazeOpen || universe}
       />
       {loading && <div className="feed-loading">fetching more questionable inspiration...</div>}
       {!normalColors && (
@@ -700,6 +733,13 @@ function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Escape Maze Modal Game */}
+      <EscapeMazeModal
+        isOpen={isEscapeMazeOpen}
+        onEscape={handleEscapeSuccess}
+        title="Reach the other side to exit."
+      />
     </div>
   );
 }
