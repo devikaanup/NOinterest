@@ -454,7 +454,13 @@ function Dashboard() {
           <ConnectToInternetButton />
           <TurnOffButton />
         </div>
-        <button className="fake-x" onClick={closeFake}>×</button>
+        <div className="try-closing-wrapper">
+          <div className="try-closing-teaser">
+            <span>try closing me</span>
+            <span className="teaser-arrow" aria-hidden="true">➔</span>
+          </div>
+          <button className="fake-x" onClick={closeFake} title="Close">×</button>
+        </div>
       </nav>
       {hasEscaped && (
         <section className="escape-banner" aria-live="polite">
