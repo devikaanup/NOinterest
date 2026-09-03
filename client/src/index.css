@@ -33,8 +33,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 15px 0;
+  justify-content: flex-start;
+  padding-top: 8px;
+  padding-bottom: 8px;
   background: #000000;
   background: var(--bg, #000000);
 }
@@ -131,19 +132,21 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 .bottom-caption { bottom: 12px; left: 50%; transform: translateX(-50%); letter-spacing: 0.18em; font-size: 8px; }
 
 .card-wrap {
-  width: 1000px;
-  max-width: 95vw;
-  height: 660px;
-  max-height: 96vh;
+  width: min(1200px, 96vw);
+  height: calc(100vh - 16px);
+  min-height: 720px;
+  max-height: 940px;
   position: relative;
   z-index: 2;
-  padding: 78px 24px 16px;
+  margin-top: 0;
+  padding: 85px 30px 20px;
   background: rgba(255, 254, 251, 0.98);
   clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-  filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.22));
+  filter: drop-shadow(0 25px 65px rgba(0, 0, 0, 0.25));
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   transition: transform 400ms var(--ease-out);
 }
 
@@ -168,7 +171,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 }
 
 .topline {
-  width: 120px;
+  width: 125px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -184,68 +187,68 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 
 .hero-copy {
   padding: 4px 0 6px;
-  width: 200px;
+  width: 220px;
   text-align: center;
 }
 
 .eyebrow, .micro-label { display: block; color: var(--red); font: 700 9px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.11em; text-transform: uppercase; }
-.hero-copy h1 { margin: 2px 0 2px; color: var(--ink); font: 600 19px/1.2 "Fraunces", Georgia, serif; letter-spacing: -0.03em; text-align: center; }
+.hero-copy h1 { margin: 2px 0 2px; color: var(--ink); font: 600 21px/1.2 "Fraunces", Georgia, serif; letter-spacing: -0.03em; text-align: center; }
 .period { color: var(--red); }
-.hero-copy p { margin: 0 auto; width: 190px; color: var(--muted); font-size: 10px; line-height: 1.35; text-align: center; }
+.hero-copy p { margin: 0 auto; width: 200px; color: var(--muted); font-size: 10.5px; line-height: 1.35; text-align: center; }
 
 .gauntlet-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .field-group {
-  width: 240px;
+  width: 270px;
   max-width: 82%;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   text-align: left;
 }
 
 .field-group > span { color: #66625d; font: 600 9px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.06em; text-transform: uppercase; }
-.control { width: 100%; height: 32px; box-sizing: border-box; padding: 0 10px; border: 1px solid #dcd9d1; border-radius: 7px; color: var(--ink); background: #fbfaf6; font-size: 12px; transition: border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out), background 180ms var(--ease-out); }
+.control { width: 100%; height: 34px; box-sizing: border-box; padding: 0 12px; border: 1px solid #dcd9d1; border-radius: 8px; color: var(--ink); background: #fbfaf6; font-size: 12.5px; transition: border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out), background 180ms var(--ease-out); }
 .control::placeholder { color: #b1ada4; }
 .control:hover { border-color: #c7c2b9; }
 .control:focus { border-color: rgba(214, 69, 69, 0.75); background: #fff; box-shadow: 0 0 0 3px rgba(214, 69, 69, 0.07); outline: none; }
 
 .captcha-box {
-  width: 350px;
+  width: 400px;
   max-width: 86%;
-  padding: 8px 10px 6px;
+  padding: 10px 12px 8px;
   border: 1px solid #dad7cf;
-  border-radius: 11px;
+  border-radius: 12px;
   background: #f8f7f2;
   margin-top: 2px;
 }
 
 .submit-row {
-  width: 390px;
+  width: 430px;
   max-width: 86%;
   margin-top: 4px;
 }
 
 .login-troll-toolbar {
-  width: 440px;
+  width: 470px;
   max-width: 86%;
   justify-content: center;
   margin: 8px 0 3px;
-  transform: scale(0.92);
+  transform: scale(0.95);
 }
 
 .card-footer {
-  width: 500px;
+  width: 520px;
   max-width: 90%;
-  padding-top: 6px;
+  padding-top: 8px;
   margin-top: 2px;
-  font-size: 8.5px;
+  font-size: 9px;
 }
 .captcha-header { display: flex; align-items: flex-start; justify-content: space-between; min-height: 28px; }
 .captcha-prompt { max-width: 470px; margin: 3px 0 0; color: #3b3936; font-size: 11px; line-height: 1.25; }
