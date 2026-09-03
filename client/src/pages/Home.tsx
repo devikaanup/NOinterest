@@ -626,18 +626,6 @@ function Dashboard() {
         isPaused={isEscapeMazeOpen || universe}
       />
       {loading && <div className="feed-loading">fetching more questionable inspiration...</div>}
-      {!normalColors && (
-        <form className="math-widget" onSubmit={submitMath}>
-          <span>COLORS LOOK WRONG?</span>
-          <p>Solve this to fix it:</p>
-          <strong>{mathProblem.text}</strong>
-          <div>
-            <input value={mathAnswer} onChange={(event) => setMathAnswer(event.target.value)} inputMode="numeric" />
-            <button>Submit</button>
-          </div>
-          <small>{mathMessage}</small>
-        </form>
-      )}
       {normalColors && <div className="colors-toast">Fine. You earned normal colours.</div>}
       {rouletteOpen && (
         <div className="modal-backdrop roulette-backdrop">

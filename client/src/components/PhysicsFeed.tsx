@@ -57,7 +57,7 @@ export function getCardDimensions(index: number) {
   return { width, height };
 }
 
-export const ARENA_HEIGHT = 2200;
+export const ARENA_HEIGHT = 1200;
 
 interface PhysicsFeedProps {
   pins: Pin[];
@@ -79,7 +79,11 @@ export default function PhysicsFeed({
   const animationFrameRef = useRef<number | null>(null);
   const spawnTimersRef = useRef<number[]>([]);
   const lastThudRef = useRef(0);
-  const [spawnedPinIds, setSpawnedPinIds] = useState<Set<string>>(new Set());
+  const onThudSoundRef = useRef(onThudSound);
+
+  useEffect(() => {
+    onThudSoundRef.current = onThudSound;
+  }, [onThudSound]);
 
   // Drag interaction tracking
   const activeDragRef = useRef<{
@@ -92,7 +96,7 @@ export default function PhysicsFeed({
     hasMoved: boolean;
   } | null>(null);
 
-  // Initialize Matter.js engine and static boundaries
+  // Initialize Matter.js engine and static boundaries ONCE on mount
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -101,43 +105,42 @@ export default function PhysicsFeed({
 
     const engine = Engine.create({
       enableSleeping: false, // Never freeze cards in mid-air
-      gravity: { x: 0, y: 2.2, scale: 0.001 },
+      gravity: { x: 0, y: 2.4, scale: 0.001 },
     });
     engineRef.current = engine;
 
     const width = container.clientWidth || window.innerWidth;
     const height = ARENA_HEIGHT;
 
-    // Thick static boundaries to prevent any tunneling
+    // Thick static boundaries
     const floor = Bodies.rectangle(width / 2, height + 40, width * 3, 80, {
       isStatic: true,
       label: "boundary-floor",
-      friction: 0.8,
+      friction: 0.75,
       restitution: 0.25,
     });
 
     const leftWall = Bodies.rectangle(-40, height / 2, 80, height * 3, {
       isStatic: true,
       label: "boundary-left",
-      friction: 0.05, // low friction so cards slide down smoothly
+      friction: 0.05,
       restitution: 0.2,
     });
 
     const rightWall = Bodies.rectangle(width + 40, height / 2, 80, height * 3, {
       isStatic: true,
       label: "boundary-right",
-      friction: 0.05, // low friction so cards slide down smoothly
+      friction: 0.05,
       restitution: 0.2,
     });
 
-    const ceiling = Bodies.rectangle(width / 2, -2500, width * 3, 80, {
+    const ceiling = Bodies.rectangle(width / 2, -1500, width * 3, 80, {
       isStatic: true,
       label: "boundary-ceiling",
     });
 
     Composite.add(engine.world, [floor, leftWall, rightWall, ceiling]);
 
-    // Handle window resize to adjust wall and floor positions
     const handleResize = () => {
       if (!containerRef.current || !engineRef.current) return;
       const newWidth = containerRef.current.clientWidth || window.innerWidth;
@@ -167,21 +170,20 @@ export default function PhysicsFeed({
           shouldThud = true;
         }
 
-        if (shouldThud && now - lastThudRef.current > 40) {
+        if (shouldThud && now - lastThudRef.current > 50) {
           lastThudRef.current = now;
-          onThudSound();
+          onThudSoundRef.current?.();
         }
       }
     });
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      Matter.Events.off(engine, "collisionStart", () => {});
       Matter.Composite.clear(engine.world, false);
       Matter.Engine.clear(engine);
       engineRef.current = null;
     };
-  }, [onThudSound]);
+  }, []); // Run ONCE on mount so engine is NEVER destroyed on re-render
 
   // Spawning cards with staggered entrance
   useEffect(() => {
@@ -189,44 +191,49 @@ export default function PhysicsFeed({
     const container = containerRef.current;
     if (!engine || !container || !pins.length) return;
 
-    // Clear any previous spawn timers and existing card bodies
+    // Clear any previous spawn timers
     spawnTimersRef.current.forEach((t) => window.clearTimeout(t));
     spawnTimersRef.current = [];
 
-    const existingBodies = Object.values(cardBodiesRef.current);
-    if (existingBodies.length) {
-      Matter.Composite.remove(engine.world, existingBodies);
-      cardBodiesRef.current = {};
+    // Remove bodies for pins that are no longer in the list (e.g. on new topic search)
+    const newPinIdSet = new Set(pins.map((p) => p.id));
+    for (const id in cardBodiesRef.current) {
+      if (!newPinIdSet.has(id)) {
+        Matter.Composite.remove(engine.world, cardBodiesRef.current[id]);
+        delete cardBodiesRef.current[id];
+      }
     }
-
-    setSpawnedPinIds(new Set());
 
     const containerWidth = container.clientWidth || window.innerWidth;
 
     pins.forEach((pin, index) => {
+      // Don't re-spawn card if its body already exists and is in the world
+      if (cardBodiesRef.current[pin.id]) return;
+
       const { width: cardWidth, height: cardHeight } = getCardDimensions(index);
 
-      // Stagger spawn times ~30-80ms apart
-      const delay = index * (35 + Math.random() * 40);
+      // Stagger spawn times ~35-70ms apart
+      const delay = index * 45;
 
       const timer = window.setTimeout(() => {
-        if (!engineRef.current) return;
+        const activeEngine = engineRef.current;
+        if (!activeEngine) return;
 
-        const spawnMargin = cardWidth / 2 + 15;
+        const spawnMargin = cardWidth / 2 + 25;
         const spawnX =
           spawnMargin +
           Math.random() * Math.max(20, containerWidth - spawnMargin * 2);
-        const spawnY = -cardHeight - 20 - Math.random() * 80;
-        const initialAngle = (Math.random() - 0.5) * 0.45; // ~ -13° to +13°
-        const initialVx = (Math.random() - 0.5) * 3.5;
-        const initialVy = 8 + Math.random() * 6;
+        const spawnY = -cardHeight - 40 - Math.random() * 80;
+        const initialAngle = (Math.random() - 0.5) * 0.4;
+        const initialVx = (Math.random() - 0.5) * 3;
+        const initialVy = 7 + Math.random() * 6;
         const initialAv = (Math.random() - 0.5) * 0.04;
 
         const body = Matter.Bodies.rectangle(spawnX, spawnY, cardWidth, cardHeight, {
           chamfer: { radius: 6 },
-          restitution: 0.32,
-          friction: 0.12, // Lower friction to prevent getting stuck
-          frictionAir: 0.006, // Natural falling speed without stalling
+          restitution: 0.3,
+          friction: 0.1,
+          frictionAir: 0.005,
           density: 0.001,
           label: `card-${pin.id}`,
         });
@@ -242,14 +249,15 @@ export default function PhysicsFeed({
         Matter.Body.setAngularVelocity(body, initialAv);
         Matter.Body.setAngle(body, initialAngle);
 
-        Matter.Composite.add(engine.world, body);
+        Matter.Composite.add(activeEngine.world, body);
         cardBodiesRef.current[pin.id] = body;
 
-        setSpawnedPinIds((prev) => {
-          const next = new Set(prev);
-          next.add(pin.id);
-          return next;
-        });
+        // Reveal card in DOM immediately
+        const el = cardRefs.current[pin.id];
+        if (el) {
+          el.classList.remove("is-hidden");
+          el.classList.add("is-visible");
+        }
       }, delay);
 
       spawnTimersRef.current.push(timer);
@@ -271,15 +279,11 @@ export default function PhysicsFeed({
       return;
     }
 
-    let lastTime = performance.now();
-
-    const loop = (currentTime: number) => {
-      const delta = Math.min(32, currentTime - lastTime);
-      lastTime = currentTime;
-
+    const loop = () => {
       const engine = engineRef.current;
       if (engine) {
-        Matter.Engine.update(engine, delta);
+        // Run deterministic 60Hz physics step
+        Matter.Engine.update(engine, 1000 / 60);
 
         // Sync DOM card elements to physics body positions directly without React re-renders
         const bodies = cardBodiesRef.current;
@@ -397,7 +401,7 @@ export default function PhysicsFeed({
     <main className="physics-feed-container" ref={containerRef}>
       {pins.map((pin, index) => {
         const { width, height } = getCardDimensions(index);
-        const isSpawned = spawnedPinIds.has(pin.id);
+        const isAlreadySpawned = !!cardBodiesRef.current[pin.id];
 
         return (
           <article
@@ -405,7 +409,7 @@ export default function PhysicsFeed({
             ref={(el) => {
               cardRefs.current[pin.id] = el;
             }}
-            className={`pin-card physics-card ${isSpawned ? "is-visible" : "is-hidden"}`}
+            className={`pin-card physics-card ${isAlreadySpawned ? "is-visible" : "is-hidden"}`}
             style={{
               width: `${width}px`,
               minHeight: `${height}px`,
