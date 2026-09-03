@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import PhysicsFeed, { type Pin, PinPlaceholder, dashboardTone } from "@/components/PhysicsFeed";
 
 type Tile = {
   id: number;
@@ -336,18 +337,7 @@ function AppButton({
   );
 }
 
-type Pin = {
-  id: string;
-  title: string;
-  imageUrl: string;
-  topic: string;
-  description?: string;
-  author?: string;
-  saveCount?: number;
-};
-
 const TOPICS = ["Cats", "Cars", "Food", "Travel", "Fashion", "Architecture", "Nature", "Anime", "Interior Design", "Photography"];
-const PIN_TONES = ["#ff5ca8", "#a8ff00", "#ff8c2e", "#65d6e8", "#8f7bff", "#ffe05b", "#ef6f6f", "#8ce0a3"];
 
 function fetchImagesForTopic(topic: string): Promise<Pin[]> {
   return Promise.resolve(Array.from({ length: 18 }, (_, index) => ({
@@ -359,10 +349,6 @@ function fetchImagesForTopic(topic: string): Promise<Pin[]> {
     author: ["someone_online", "mystery_guest", "the_algorithm", "you_probably"][index % 4],
     saveCount: 12 + index * 17,
   })));
-}
-
-function dashboardTone(index: number) {
-  return PIN_TONES[index % PIN_TONES.length];
 }
 
 function useDashboardSound() {
@@ -403,9 +389,20 @@ function makeMathProblem() {
   return { text: `${percent}% of ${base} = ?`, answer: (percent * base) / 100 };
 }
 
-function PinPlaceholder({ pin, index, large = false }: { pin: Pin; index: number; large?: boolean }) {
-  return <div className={`pin-art ${large ? "pin-art-large" : ""}`} style={{ background: `linear-gradient(${115 + index * 21}deg, ${dashboardTone(index)}, ${dashboardTone(index + 3)})` }}><span>{pin.topic}</span><b>#{(index % 18) + 1}</b><i className={`art-sticker sticker-${index % 5}`} /></div>;
-}
+const WHEEL_SECTIONS = [
+  "OPTION 01",
+  "OPTION 02",
+  "OPTION 03",
+  "OPTION 04",
+  "OPTION 05",
+  "OPTION 06",
+  "OPTION 07",
+  "OPTION 08",
+  "OPTION 09",
+  "OPTION 10",
+  "OPTION 11",
+  "OPTION 12",
+];
 
 function Dashboard() {
   const [topic, setTopic] = useState("Cats");
@@ -414,6 +411,7 @@ function Dashboard() {
   const [rouletteOpen, setRouletteOpen] = useState(false);
   const [rouletteSpinning, setRouletteSpinning] = useState(false);
   const [rouletteRotation, setRouletteRotation] = useState(0);
+  const [boxRotation, setBoxRotation] = useState(0);
   const [rouletteResult, setRouletteResult] = useState("");
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [saveStep, setSaveStep] = useState(0);
@@ -428,6 +426,8 @@ function Dashboard() {
   const [pageCount, setPageCount] = useState(1);
   const sound = useDashboardSound();
   const loadedTopicRef = useRef("");
+  const spinAnimRef = useRef<number | null>(null);
+  const lastTickDegRef = useRef(0);
 
   const loadPins = useCallback(async (nextTopic: string, append = false) => {
     setLoading(true);
@@ -440,24 +440,8 @@ function Dashboard() {
   useEffect(() => { void loadPins(topic); }, [loadPins, topic]);
 
   useEffect(() => {
-    if (loading || !pins.length) return;
-    const announced = new Set<string>();
-    const timers = pins.map((pin, index) => window.setTimeout(() => {
-      if (announced.has(pin.id)) return;
-      announced.add(pin.id);
-      sound.thud();
-    }, Math.min(index, 17) * 65));
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [loading, pins]);
-
-  useEffect(() => {
-    document.body.style.overflow = rouletteOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [rouletteOpen]);
-
-  useEffect(() => {
     const onScroll = () => {
-      if (window.scrollY + window.innerHeight > document.documentElement.scrollHeight - 380) {
+      if (window.scrollY + window.innerHeight > document.documentElement.scrollHeight - 180) {
         if (pageCount >= 4) { setUniverse(true); return; }
         setPageCount((count) => count + 1);
         void loadPins(loadedTopicRef.current || topic, true);
@@ -473,30 +457,97 @@ function Dashboard() {
     return () => window.clearTimeout(timer);
   }, [closeScreen]);
 
+  const spinWheel = useCallback(() => {
+    if (rouletteSpinning) return;
+    setRouletteSpinning(true);
+    setRouletteResult("");
+
+    const term = search.trim() || "nothing in particular";
+    const customWin = Math.random() < 0.08;
+    const winner = customWin ? term : TOPICS[Math.floor(Math.random() * TOPICS.length)];
+    const winningSectionIndex = Math.floor(Math.random() * WHEEL_SECTIONS.length);
+    const segment = 360 / WHEEL_SECTIONS.length;
+    // Align winning slice under top pointer (at 0deg)
+    const targetOffset = 360 - winningSectionIndex * segment - segment / 2;
+
+    const startBoxRot = boxRotation % 360;
+    const startWheelRot = rouletteRotation % 360;
+
+    // Box spins 4 full revolutions (1440deg) and lands at 0deg upright
+    const totalBoxDelta = 1440;
+    // Wheel spins 7 full revolutions plus target offset
+    const totalWheelDelta = 2520 + ((targetOffset - (startWheelRot % 360) + 360) % 360);
+
+    const startTime = performance.now();
+    const duration = 4000;
+    lastTickDegRef.current = startWheelRot;
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Smooth cubic ease-out
+      const ease = 1 - Math.pow(1 - progress, 3.4);
+
+      const currentBox = startBoxRot + totalBoxDelta * ease;
+      const currentWheel = startWheelRot + totalWheelDelta * ease;
+
+      setBoxRotation(currentBox);
+      setRouletteRotation(currentWheel);
+
+      if (Math.abs(currentWheel - lastTickDegRef.current) >= segment * 0.8) {
+        lastTickDegRef.current = currentWheel;
+        sound.tick();
+      }
+
+      if (progress < 1) {
+        spinAnimRef.current = requestAnimationFrame(animate);
+      } else {
+        setRouletteSpinning(false);
+        setRouletteResult(winner);
+        sound.ding();
+      }
+    };
+
+    if (spinAnimRef.current) cancelAnimationFrame(spinAnimRef.current);
+    spinAnimRef.current = requestAnimationFrame(animate);
+  }, [boxRotation, rouletteRotation, rouletteSpinning, search, sound]);
+
   const openRoulette = (event: React.FormEvent) => {
     event.preventDefault();
-    const term = search.trim() || "nothing in particular";
-    const wheelItems = [...TOPICS, term];
-    const customWin = Math.random() < 0.075;
-    const winner = customWin ? term : TOPICS[Math.floor(Math.random() * TOPICS.length)];
-    const winnerIndex = customWin ? wheelItems.length - 1 : wheelItems.indexOf(winner);
-    setRouletteResult(""); setRouletteOpen(true); setRouletteSpinning(true);
-    const segment = 360 / wheelItems.length;
-    setRouletteRotation(1440 + (360 - winnerIndex * segment - segment / 2));
-    sound.tick();
-    window.setTimeout(() => { setRouletteSpinning(false); setRouletteResult(winner); sound.ding(); }, 3900);
+    setRouletteResult("");
+    setRouletteOpen(true);
+    // Auto-spin after 300ms if triggered from search, while user can also click wheel
+    window.setTimeout(() => {
+      spinWheel();
+    }, 300);
   };
 
   useEffect(() => {
     if (!rouletteResult) return;
-    const timer = window.setTimeout(() => { setTopic(rouletteResult); setRouletteOpen(false); setPageCount(1); }, 1300);
+    const timer = window.setTimeout(() => {
+      setTopic(rouletteResult);
+      setRouletteOpen(false);
+      setPageCount(1);
+    }, 1600);
     return () => window.clearTimeout(timer);
   }, [rouletteResult]);
 
+  useEffect(() => {
+    return () => {
+      if (spinAnimRef.current) cancelAnimationFrame(spinAnimRef.current);
+    };
+  }, []);
+
   const submitMath = (event: React.FormEvent) => {
     event.preventDefault();
-    if (Number(mathAnswer) === mathProblem.answer) { setNormalColors(true); setMathMessage("Fine. You earned normal colours."); }
-    else { setMathMessage("Nope."); setMathProblem(makeMathProblem()); setMathAnswer(""); }
+    if (Number(mathAnswer) === mathProblem.answer) {
+      setNormalColors(true);
+      setMathMessage("Fine. You earned normal colours.");
+    } else {
+      setMathMessage("Nope.");
+      setMathProblem(makeMathProblem());
+      setMathAnswer("");
+    }
   };
 
   const closeFake = () => { sound.sting(); setCloseScreen(true); };
@@ -505,20 +556,152 @@ function Dashboard() {
   if (closeScreen) return <div className="fake-close-screen" onClick={() => setCloseScreen(false)}><div className="fake-close-copy"><strong>no.. no no no no no no NO NO NO NO NO NO NONONONONNONONONO</strong><span>i thought we were having a good time</span><em>☹</em></div></div>;
   if (universe) return <div className="universe-screen"><div className="stars" /><div className="universe-copy"><span>THE LAST SCROLL</span><p>You have reached the end of the universe.<br />Your journey is complete.<br /><i>Go back to sleep.</i></p><button onClick={() => { setUniverse(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Wake up</button></div></div>;
 
-  return <div className={`dashboard-page ${normalColors ? "colors-normal" : "colors-inverted"}`}>
-    <nav className="interest-nav">
-      <div className="interest-logo">NO<span>interest</span><sup>™</sup></div>
-      <form className="interest-search" onSubmit={openRoulette}><span>⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search for something..." /><kbd>↵</kbd></form>
-      <button className="fake-x" onClick={closeFake}>×</button>
-    </nav>
-    <header className="feed-heading"><div><span>THE DISCOVERY FEED</span><h1>Ideas for <i>{topic}</i></h1></div><div className="feed-meta"><b>{pins.length || "—"}</b><small>THINGS<br />YOU DIDN'T ASK FOR</small></div></header>
-    <main className="pin-grid">{pins.map((pin, index) => <article key={pin.id} className="pin-card" style={{ "--drop": `${Math.min(index, 18) * 55}ms`, "--tilt": `${(index % 5 - 2) * 0.7}deg`, "--entry-x": `${(index % 3 - 1) * 65}px`, "--entry-y": `${-90 - (index % 4) * 26}px`, "--float-x": `${index % 2 ? 5 : -5}px`, "--float-y": `${index % 3 ? 4 : -4}px`, "--float-rot": `${index % 2 ? 1.1 : -1.1}deg`, "--float-duration": `${7.5 + (index % 5) * 1.2}s`, "--float-delay": `${(index % 7) * -0.7}s` } as React.CSSProperties} onClick={() => selectPin(pin)}><div className="pin-card-inner"><PinPlaceholder pin={pin} index={index} /><div className="pin-info"><h2>{pin.title}</h2><p>{pin.author} · {pin.saveCount} saves</p></div></div></article>)}</main>
-    {loading && <div className="feed-loading">fetching more questionable inspiration...</div>}
-    {!normalColors && <form className="math-widget" onSubmit={submitMath}><span>COLORS LOOK WRONG?</span><p>Solve this to fix it:</p><strong>{mathProblem.text}</strong><div><input value={mathAnswer} onChange={(event) => setMathAnswer(event.target.value)} inputMode="numeric" /><button>Submit</button></div><small>{mathMessage}</small></form>}
-    {normalColors && <div className="colors-toast">Fine. You earned normal colours.</div>}
-    {rouletteOpen && <div className="modal-backdrop"><div className="roulette-modal"><button className="modal-close" onClick={() => setRouletteOpen(false)}>×</button><span className="modal-label">MANDATORY LUCK CHECK</span><h2>Oh so you want “{search || "nothing in particular"}”, let's see if you're lucky enough for it.</h2><div className="wheel-shell"><div className="wheel-pointer">▼</div><div className={`roulette-wheel ${rouletteSpinning ? "spinning" : ""}`} style={{ transform: `rotate(${rouletteRotation}deg)` }}>{[...TOPICS, search || "YOU"].map((item, index) => <span key={`${item}-${index}`} style={{ transform: `rotate(${index * (360 / 11)}deg) skewY(-57.27deg)` }}>{item}</span>)}</div></div>{rouletteSpinning ? <p className="roulette-status">spinning with purpose...</p> : <p className="roulette-status">You got: <b>{rouletteResult}</b><br /><small>Lucky you.</small></p>}</div></div>}
-    {selectedPin && <div className="modal-backdrop"><div className="pin-detail-modal"><button className="modal-close" onClick={() => setSelectedPin(null)}>×</button><PinPlaceholder pin={selectedPin} index={pins.indexOf(selectedPin)} large /><div className="detail-copy"><span>{selectedPin.topic}</span><h2>{selectedPin.title}</h2><p>{selectedPin.description}</p><small>posted by <b>{selectedPin.author}</b></small><div className="detail-actions">{saved ? <strong>Fine. Saved.</strong> : saveStep === 0 ? <button onClick={() => setSaveStep(1)}>Save</button> : saveStep === 1 ? <div><p>Save this pin?</p><button onClick={() => setSaveStep(2)}>Yes</button><button onClick={() => setSelectedPin(null)}>No</button></div> : <div><p>Are you sure?</p><button onClick={() => { setSaved(true); setSaveStep(3); }}>Yes</button><button onClick={() => setSaveStep(0)}>No</button></div>}<button className="share-button" onClick={() => navigator.clipboard?.writeText(selectedPin.title)}>Share</button></div></div></div></div>}
-  </div>;
+  return (
+    <div className={`dashboard-page ${normalColors ? "colors-normal" : "colors-inverted"}`}>
+      <nav className="interest-nav">
+        <div className="interest-logo">NO<span>interest</span><sup>™</sup></div>
+        <form className="interest-search" onSubmit={openRoulette}>
+          <span>⌕</span>
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search for something..." />
+          <kbd>↵</kbd>
+        </form>
+        <button className="fake-x" onClick={closeFake}>×</button>
+      </nav>
+      <header className="feed-heading">
+        <div>
+          <span>THE DISCOVERY FEED</span>
+          <h1>Ideas for <i>{topic}</i></h1>
+        </div>
+        <div className="feed-meta">
+          <b>{pins.length || "—"}</b>
+          <small>THINGS<br />YOU DIDN'T ASK FOR</small>
+        </div>
+      </header>
+      <PhysicsFeed
+        pins={pins}
+        onSelectPin={selectPin}
+        onThudSound={sound.thud}
+        isPaused={closeScreen || universe}
+      />
+      {loading && <div className="feed-loading">fetching more questionable inspiration...</div>}
+      {!normalColors && (
+        <form className="math-widget" onSubmit={submitMath}>
+          <span>COLORS LOOK WRONG?</span>
+          <p>Solve this to fix it:</p>
+          <strong>{mathProblem.text}</strong>
+          <div>
+            <input value={mathAnswer} onChange={(event) => setMathAnswer(event.target.value)} inputMode="numeric" />
+            <button>Submit</button>
+          </div>
+          <small>{mathMessage}</small>
+        </form>
+      )}
+      {normalColors && <div className="colors-toast">Fine. You earned normal colours.</div>}
+      {rouletteOpen && (
+        <div className="modal-backdrop roulette-backdrop">
+          {/* The stationary pick arrow that DOES NOT rotate */}
+          <div className="fixed-wheel-pointer" aria-hidden="true">
+            ▼
+          </div>
+
+          {/* The box containing the wheel that SPINS */}
+          <div
+            className="roulette-modal"
+            style={{
+              transform: `rotate(${boxRotation}deg)`,
+            }}
+          >
+            <button
+              className="modal-close"
+              onClick={() => { if (!rouletteSpinning) setRouletteOpen(false); }}
+              disabled={rouletteSpinning}
+            >
+              ×
+            </button>
+            <span className="modal-label">MANDATORY LUCK CHECK</span>
+            <h2>Oh so you want “{search || "nothing in particular"}”, let's see if you're lucky enough for it.</h2>
+            <div
+              className={`wheel-shell ${!rouletteSpinning ? "is-clickable" : ""}`}
+              onClick={spinWheel}
+              title={rouletteSpinning ? "Spinning..." : "Click to spin the wheel!"}
+            >
+              <div
+                className="roulette-wheel"
+                style={{ transform: `rotate(${rouletteRotation}deg)` }}
+              >
+                {WHEEL_SECTIONS.map((item, index) => {
+                  const angle = index * (360 / WHEEL_SECTIONS.length);
+                  return (
+                    <div
+                      key={`${item}-${index}`}
+                      className="wheel-slice"
+                      style={{
+                        transform: `rotate(${angle}deg)`,
+                      }}
+                    >
+                      <span className="slice-text">{item}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {!rouletteSpinning && !rouletteResult && (
+                <div className="wheel-click-prompt">
+                  <span>CLICK WHEEL TO SPIN!</span>
+                </div>
+              )}
+            </div>
+            {rouletteSpinning ? (
+              <p className="roulette-status">🌀 SPINNING WITH PURPOSE... 🌀</p>
+            ) : rouletteResult ? (
+              <p className="roulette-status">
+                You got: <b>{rouletteResult}</b><br />
+                <small>Lucky you.</small>
+              </p>
+            ) : (
+              <p className="roulette-status">
+                <b>Click the wheel</b> to test your luck.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+      {selectedPin && (
+        <div className="modal-backdrop">
+          <div className="pin-detail-modal">
+            <button className="modal-close" onClick={() => setSelectedPin(null)}>×</button>
+            <PinPlaceholder pin={selectedPin} index={pins.indexOf(selectedPin)} large />
+            <div className="detail-copy">
+              <span>{selectedPin.topic}</span>
+              <h2>{selectedPin.title}</h2>
+              <p>{selectedPin.description}</p>
+              <small>posted by <b>{selectedPin.author}</b></small>
+              <div className="detail-actions">
+                {saved ? (
+                  <strong>Fine. Saved.</strong>
+                ) : saveStep === 0 ? (
+                  <button onClick={() => setSaveStep(1)}>Save</button>
+                ) : saveStep === 1 ? (
+                  <div>
+                    <p>Save this pin?</p>
+                    <button onClick={() => setSaveStep(2)}>Yes</button>
+                    <button onClick={() => setSelectedPin(null)}>No</button>
+                  </div>
+                ) : (
+                  <div>
+                    <p>Are you sure?</p>
+                    <button onClick={() => { setSaved(true); setSaveStep(3); }}>Yes</button>
+                    <button onClick={() => setSaveStep(0)}>No</button>
+                  </div>
+                )}
+                <button className="share-button" onClick={() => navigator.clipboard?.writeText(selectedPin.title)}>Share</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function Home() {

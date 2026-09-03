@@ -179,11 +179,21 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 .feed-meta b { font: 900 42px/1 Impact, sans-serif; }
 .feed-meta small { font: 700 10px/1.05 "Courier New", monospace; }
 .pin-grid { max-width: 1280px; margin: 0 auto; column-count: 5; column-gap: 19px; }
-.pin-card { display: inline-block; width: 100%; margin: 0 0 21px; padding: 7px; cursor: pointer; background: #fff; border: 3px solid #171717; box-shadow: 7px 8px 0 #a8ff00; transform: rotate(var(--tilt)); animation: pin-drop-in 800ms cubic-bezier(.2,1.6,.4,1) var(--drop) both; break-inside: avoid; }
-.pin-card-inner { animation: zero-g-float var(--float-duration) ease-in-out var(--float-delay) infinite alternate; will-change: transform; }
+.pin-grid { max-width: 1280px; margin: 0 auto; column-count: 5; column-gap: 19px; }
+.physics-feed-container { position: relative; width: 100%; max-width: 1360px; height: 2200px; min-height: 2200px; margin: 0 auto 120px; overflow: visible; user-select: none; touch-action: pan-y; }
+.physics-feed-platform { position: absolute; left: 0; right: 0; display: flex; flex-direction: column; pointer-events: none; z-index: 5; }
+.platform-hazard-bar { height: 10px; background: repeating-linear-gradient(-45deg, #171717, #171717 14px, #a8ff00 14px, #a8ff00 28px); border-top: 3px solid #171717; border-bottom: 3px solid #171717; box-shadow: 0 4px 0 #171717; }
+.platform-label { padding: 6px 12px; background: #171717; color: #a8ff00; font: 900 12px/1.2 "Courier New", monospace; letter-spacing: 0.12em; text-align: center; border-bottom: 3px solid #ff5ca8; }
+.pin-card { display: inline-block; width: 100%; margin: 0 0 21px; padding: 7px; cursor: pointer; background: #fff; border: 3px solid #171717; box-shadow: 7px 8px 0 #a8ff00; transform: rotate(var(--tilt)); break-inside: avoid; }
+.physics-card { position: absolute; top: 0; left: 0; margin: 0; cursor: grab; will-change: transform; touch-action: none; user-select: none; animation: none !important; }
+.physics-card:active { cursor: grabbing; }
+.physics-card.is-hidden { opacity: 0; pointer-events: none; }
+.physics-card.is-visible { opacity: 1; }
+.physics-card .pin-card-inner { animation: none !important; pointer-events: none; }
+.pin-card-inner { will-change: transform; }
 .pin-card:nth-child(3n) { box-shadow: 7px 8px 0 #ff8c2e; background: #fff1a4; }
 .pin-card:nth-child(4n) { border-color: #8f7bff; box-shadow: 7px 8px 0 #ff5ca8; }
-.pin-card:hover { transform: rotate(0deg) scale(1.03); z-index: 2; }
+.pin-card:hover { z-index: 10; }
 .pin-art { position: relative; display: flex; align-items: center; justify-content: center; min-height: 130px; overflow: hidden; color: #171717; text-align: center; font: 900 26px/.85 Impact, sans-serif; text-transform: uppercase; }
 .pin-card:nth-child(3n) .pin-art { min-height: 205px; }
 .pin-card:nth-child(4n) .pin-art { min-height: 165px; }
@@ -209,16 +219,22 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 .math-widget small { display: block; min-height: 14px; margin-top: 7px; color: #e32929; font: 900 10px monospace; }
 .colors-toast { position: fixed; z-index: 25; right: 20px; bottom: 20px; padding: 12px; color: #fff; background: #171717; font: 900 11px "Courier New", monospace; transform: rotate(2deg); }
 .modal-backdrop { position: fixed; z-index: 999; inset: 0; display: flex; align-items: center; justify-content: center; padding: 30px; background: rgba(23,23,23,.74); backdrop-filter: blur(9px); animation: backdrop-in 180ms ease-out both; }
+.roulette-backdrop { pointer-events: none; background: rgba(23,23,23,.38); backdrop-filter: blur(3px); }
+.roulette-backdrop .roulette-modal { pointer-events: auto; }
+.fixed-wheel-pointer { position: fixed; z-index: 1010; top: calc(50% - 200px); left: 50%; transform: translateX(-50%); color: #e32929; font-size: 48px; line-height: 1; filter: drop-shadow(0 4px 0 #171717); pointer-events: none; animation: pointer-pulse 700ms ease-in-out infinite alternate; }
 .colors-inverted .modal-backdrop { filter: invert(1) hue-rotate(180deg); }
-.roulette-modal, .pin-detail-modal { position: relative; width: 560px; max-height: 90vh; overflow: auto; padding: 29px; border: 5px solid #171717; background: #fff7e8; box-shadow: 14px 14px 0 #ff5ca8; transform: rotate(-1deg); animation: modal-pop 420ms cubic-bezier(.16,1.35,.35,1) both; }
-.roulette-modal { width: min(680px, 90vw); text-align: center; }
-.modal-close { position: absolute; top: 10px; right: 12px; border: 0; background: transparent; color: #e32929; font: 900 27px Arial; cursor: pointer; }
-.roulette-modal h2 { max-width: 460px; margin: 12px 0 18px; font: 900 24px/1.05 Georgia, serif; }
-.wheel-shell { position: relative; width: 410px; height: 410px; margin: 22px auto 14px; }
-.wheel-pointer { position: absolute; z-index: 3; top: -24px; left: 50%; color: #e32929; font-size: 39px; filter: drop-shadow(2px 3px 0 #171717); transform: translateX(-50%); animation: pointer-pulse 700ms ease-in-out infinite alternate; }
-.roulette-wheel { position: absolute; inset: 0; overflow: hidden; border: 5px solid #171717; border-radius: 50%; background: conic-gradient(#ff5ca8 0deg 32.7deg,#a8ff00 32.7deg 65.4deg,#ff8c2e 65.4deg 98.1deg,#65d6e8 98.1deg 130.8deg,#8f7bff 130.8deg 163.5deg,#ffe05b 163.5deg 196.2deg,#ef6f6f 196.2deg 228.9deg,#8ce0a3 228.9deg 261.6deg,#ff5ca8 261.6deg 294.3deg,#a8ff00 294.3deg 327deg,#ff8c2e 327deg 360deg); transition: transform 3.8s cubic-bezier(.1,.7,.15,1); }
-.roulette-wheel span { position: absolute; top: 10px; left: 50%; width: 78px; height: 190px; transform-origin: 0 195px; font: 900 11px/1 "Courier New", monospace; text-align: center; }
-.roulette-status { text-align: center; font: 700 15px "Comic Sans MS", cursive; }
+.roulette-modal, .pin-detail-modal { position: relative; width: 560px; max-height: 90vh; overflow: auto; padding: 29px; border: 5px solid #171717; background: #fff7e8; box-shadow: 14px 14px 0 #ff5ca8; transform-origin: center center; will-change: transform; animation: modal-pop 420ms cubic-bezier(.16,1.35,.35,1) both; }
+.roulette-modal { width: min(650px, 92vw); min-height: 590px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.modal-close { position: absolute; top: 10px; right: 12px; border: 0; background: transparent; color: #e32929; font: 900 27px Arial; cursor: pointer; z-index: 20; }
+.roulette-modal h2 { max-width: 480px; margin: 8px 0 14px; font: 900 22px/1.1 Georgia, serif; }
+.wheel-shell { position: relative; width: 400px; height: 400px; margin: 14px auto 10px; border-radius: 50%; box-shadow: 0 0 0 5px #171717; cursor: pointer; transform-origin: center center; user-select: none; }
+.wheel-shell.is-clickable:hover { box-shadow: 0 0 0 5px #171717, 0 0 16px rgba(255, 92, 168, 0.6); }
+.wheel-click-prompt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 15; background: #171717; color: #a8ff00; padding: 8px 16px; border: 3px solid #fff; box-shadow: 4px 4px 0 #ff5ca8; font: 900 13px/1 "Courier New", monospace; pointer-events: none; white-space: nowrap; animation: pointer-pulse 700ms ease-in-out infinite alternate; }
+.roulette-wheel { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; background: conic-gradient(#ff5ca8 0deg 30deg,#a8ff00 30deg 60deg,#ff8c2e 60deg 90deg,#65d6e8 90deg 120deg,#8f7bff 120deg 150deg,#ffe05b 150deg 180deg,#ef6f6f 180deg 210deg,#8ce0a3 210deg 240deg,#ff5ca8 240deg 270deg,#a8ff00 270deg 300deg,#ff8c2e 300deg 330deg,#65d6e8 330deg 360deg); transform-origin: center center; will-change: transform; }
+.wheel-slice { position: absolute; top: 0; left: 50%; width: 80px; height: 50%; margin-left: -40px; transform-origin: bottom center; display: flex; justify-content: center; padding-top: 14px; pointer-events: none; }
+.slice-text { font: 900 10.5px/1 "Courier New", monospace; color: #171717; background: rgba(255, 255, 255, 0.9); border: 1.5px solid #171717; padding: 3px 5px; border-radius: 3px; box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3); white-space: nowrap; letter-spacing: 0.04em; }
+.roulette-status { text-align: center; font: 700 15px "Comic Sans MS", cursive; margin: 10px 0 0; }
+.roulette-status small { color: #e32929; }
 .roulette-status small { color: #e32929; }
 .detail-copy > span { color: #e32929; font: 900 11px monospace; text-transform: uppercase; }
 .detail-copy h2 { margin: 8px 0; font: 900 31px Georgia, serif; }
