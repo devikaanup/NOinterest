@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(12, 10, 24, 0.88) url('/background.png') center center / cover no-repeat;
+  background: rgba(10, 10, 18, 0.88);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   padding: 1.5rem;

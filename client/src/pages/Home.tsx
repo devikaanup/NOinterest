@@ -5,6 +5,8 @@ import { WaterPourCaptcha } from "@/components/WaterPourCaptcha";
 import { InvertColorsToggle } from "@/components/InvertColorsToggle";
 import { TurnOffButton } from "@/components/TurnOffModal";
 import { ConnectToInternetButton } from "@/components/WiringTaskModal";
+import { LuckCheckModal } from "@/components/LuckCheckModal";
+import { getPlaceholderImage } from "@/utils/getPlaceholderImage";
 
 type Tile = {
   id: number;
@@ -348,7 +350,7 @@ function fetchImagesForTopic(topic: string): Promise<Pin[]> {
   return Promise.resolve(Array.from({ length: 18 }, (_, index) => ({
     id: `${topic}-${index}-${Math.random().toString(36).slice(2, 6)}`,
     title: `${topic} idea #${index + 1}`,
-    imageUrl: "placeholder",
+    imageUrl: getPlaceholderImage(300, index % 3 === 0 ? 320 : 260, `${topic}-${index}`),
     topic,
     description: `A completely legitimate visual thought about ${topic.toLowerCase()}, assembled by a machine with no taste.`,
     author: ["someone_online", "mystery_guest", "the_algorithm", "you_probably"][index % 4],
@@ -380,51 +382,15 @@ function useDashboardSound() {
   return { thud: () => tone(92, 0.14, "triangle", 0.16), ding: () => { tone(880, 0.22, "sine", 0.16); tone(1320, 0.28, "sine", 0.11); }, sting: () => { tone(92, 0.6, "sawtooth", 0.22); tone(47, 0.5, "square", 0.1); }, tick: () => tone(520 + Math.random() * 120, 0.05, "square", 0.035) };
 }
 
-function makeMathProblem() {
-  const type = Math.floor(Math.random() * 3);
-  if (type === 0) {
-    const a = 3 + Math.floor(Math.random() * 8); const b = 2 + Math.floor(Math.random() * 7); const c = 1 + Math.floor(Math.random() * 5);
-    return { text: `(${a} × ${b}) − ${c} = ?`, answer: a * b - c };
-  }
-  if (type === 1) {
-    const answer = 2 + Math.floor(Math.random() * 8); const multiplier = 2 + Math.floor(Math.random() * 4);
-    return { text: `What is ${multiplier * answer} ÷ ${multiplier}?`, answer };
-  }
-  const percent = [10, 20, 25, 50][Math.floor(Math.random() * 4)]; const base = 40 + Math.floor(Math.random() * 6) * 10;
-  return { text: `${percent}% of ${base} = ?`, answer: (percent * base) / 100 };
-}
-
-const WHEEL_SECTIONS = [
-  "OPTION 01",
-  "OPTION 02",
-  "OPTION 03",
-  "OPTION 04",
-  "OPTION 05",
-  "OPTION 06",
-  "OPTION 07",
-  "OPTION 08",
-  "OPTION 09",
-  "OPTION 10",
-  "OPTION 11",
-  "OPTION 12",
-];
-
 function Dashboard() {
   const [topic, setTopic] = useState("Cats");
   const [pins, setPins] = useState<Pin[]>([]);
   const [search, setSearch] = useState("");
   const [rouletteOpen, setRouletteOpen] = useState(false);
-  const [rouletteSpinning, setRouletteSpinning] = useState(false);
-  const [rouletteRotation, setRouletteRotation] = useState(0);
-  const [boxRotation, setBoxRotation] = useState(0);
-  const [rouletteResult, setRouletteResult] = useState("");
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [saveStep, setSaveStep] = useState(0);
   const [saved, setSaved] = useState(false);
-  const [normalColors, setNormalColors] = useState(false);
-  const [mathProblem, setMathProblem] = useState(() => makeMathProblem());
-  const [mathAnswer, setMathAnswer] = useState("");
-  const [mathMessage, setMathMessage] = useState("");
+  const [normalColors] = useState(false);
   const [isEscapeMazeOpen, setIsEscapeMazeOpen] = useState(false);
   const [hasEscaped, setHasEscaped] = useState(false);
   const [universe, setUniverse] = useState(false);
@@ -432,8 +398,6 @@ function Dashboard() {
   const [pageCount, setPageCount] = useState(1);
   const sound = useDashboardSound();
   const loadedTopicRef = useRef("");
-  const spinAnimRef = useRef<number | null>(null);
-  const lastTickDegRef = useRef(0);
 
   const loadPins = useCallback(async (nextTopic: string, append = false) => {
     setLoading(true);
@@ -457,97 +421,9 @@ function Dashboard() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [loadPins, pageCount, topic]);
 
-  const spinWheel = useCallback(() => {
-    if (rouletteSpinning) return;
-    setRouletteSpinning(true);
-    setRouletteResult("");
-
-    const term = search.trim() || "nothing in particular";
-    const customWin = Math.random() < 0.08;
-    const winner = customWin ? term : TOPICS[Math.floor(Math.random() * TOPICS.length)];
-    const winningSectionIndex = Math.floor(Math.random() * WHEEL_SECTIONS.length);
-    const segment = 360 / WHEEL_SECTIONS.length;
-    // Align winning slice under top pointer (at 0deg)
-    const targetOffset = 360 - winningSectionIndex * segment - segment / 2;
-
-    const startBoxRot = boxRotation % 360;
-    const startWheelRot = rouletteRotation % 360;
-
-    // Box spins 4 full revolutions (1440deg) and lands at 0deg upright
-    const totalBoxDelta = 1440;
-    // Wheel spins 7 full revolutions plus target offset
-    const totalWheelDelta = 2520 + ((targetOffset - (startWheelRot % 360) + 360) % 360);
-
-    const startTime = performance.now();
-    const duration = 4000;
-    lastTickDegRef.current = startWheelRot;
-
-    const animate = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(1, elapsed / duration);
-      // Smooth cubic ease-out
-      const ease = 1 - Math.pow(1 - progress, 3.4);
-
-      const currentBox = startBoxRot + totalBoxDelta * ease;
-      const currentWheel = startWheelRot + totalWheelDelta * ease;
-
-      setBoxRotation(currentBox);
-      setRouletteRotation(currentWheel);
-
-      if (Math.abs(currentWheel - lastTickDegRef.current) >= segment * 0.8) {
-        lastTickDegRef.current = currentWheel;
-        sound.tick();
-      }
-
-      if (progress < 1) {
-        spinAnimRef.current = requestAnimationFrame(animate);
-      } else {
-        setRouletteSpinning(false);
-        setRouletteResult(winner);
-        sound.ding();
-      }
-    };
-
-    if (spinAnimRef.current) cancelAnimationFrame(spinAnimRef.current);
-    spinAnimRef.current = requestAnimationFrame(animate);
-  }, [boxRotation, rouletteRotation, rouletteSpinning, search, sound]);
-
   const openRoulette = (event: React.FormEvent) => {
     event.preventDefault();
-    setRouletteResult("");
     setRouletteOpen(true);
-    // Auto-spin after 300ms if triggered from search, while user can also click wheel
-    window.setTimeout(() => {
-      spinWheel();
-    }, 300);
-  };
-
-  useEffect(() => {
-    if (!rouletteResult) return;
-    const timer = window.setTimeout(() => {
-      setTopic(rouletteResult);
-      setRouletteOpen(false);
-      setPageCount(1);
-    }, 1600);
-    return () => window.clearTimeout(timer);
-  }, [rouletteResult]);
-
-  useEffect(() => {
-    return () => {
-      if (spinAnimRef.current) cancelAnimationFrame(spinAnimRef.current);
-    };
-  }, []);
-
-  const submitMath = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (Number(mathAnswer) === mathProblem.answer) {
-      setNormalColors(true);
-      setMathMessage("Fine. You earned normal colours.");
-    } else {
-      setMathMessage("Nope.");
-      setMathProblem(makeMathProblem());
-      setMathAnswer("");
-    }
   };
 
   const handleEscapeSuccess = () => {
@@ -627,75 +503,17 @@ function Dashboard() {
       />
       {loading && <div className="feed-loading">fetching more questionable inspiration...</div>}
       {normalColors && <div className="colors-toast">Fine. You earned normal colours.</div>}
-      {rouletteOpen && (
-        <div className="modal-backdrop roulette-backdrop">
-          {/* The stationary pick arrow that DOES NOT rotate */}
-          <div className="fixed-wheel-pointer" aria-hidden="true">
-            ▼
-          </div>
-
-          {/* The box containing the wheel that SPINS */}
-          <div
-            className="roulette-modal"
-            style={{
-              transform: `rotate(${boxRotation}deg)`,
-            }}
-          >
-            <button
-              className="modal-close"
-              onClick={() => { if (!rouletteSpinning) setRouletteOpen(false); }}
-              disabled={rouletteSpinning}
-            >
-              ×
-            </button>
-            <span className="modal-label">MANDATORY LUCK CHECK</span>
-            <h2>Oh so you want “{search || "nothing in particular"}”, let's see if you're lucky enough for it.</h2>
-            <div
-              className={`wheel-shell ${!rouletteSpinning ? "is-clickable" : ""}`}
-              onClick={spinWheel}
-              title={rouletteSpinning ? "Spinning..." : "Click to spin the wheel!"}
-            >
-              <div
-                className="roulette-wheel"
-                style={{ transform: `rotate(${rouletteRotation}deg)` }}
-              >
-                {WHEEL_SECTIONS.map((item, index) => {
-                  const angle = index * (360 / WHEEL_SECTIONS.length);
-                  return (
-                    <div
-                      key={`${item}-${index}`}
-                      className="wheel-slice"
-                      style={{
-                        transform: `rotate(${angle}deg)`,
-                      }}
-                    >
-                      <span className="slice-text">{item}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!rouletteSpinning && !rouletteResult && (
-                <div className="wheel-click-prompt">
-                  <span>CLICK WHEEL TO SPIN!</span>
-                </div>
-              )}
-            </div>
-            {rouletteSpinning ? (
-              <p className="roulette-status">🌀 SPINNING WITH PURPOSE... 🌀</p>
-            ) : rouletteResult ? (
-              <p className="roulette-status">
-                You got: <b>{rouletteResult}</b><br />
-                <small>Lucky you.</small>
-              </p>
-            ) : (
-              <p className="roulette-status">
-                <b>Click the wheel</b> to test your luck.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+      <LuckCheckModal
+        isOpen={rouletteOpen}
+        searchTerm={search}
+        onClose={(resultTopic) => {
+          setRouletteOpen(false);
+          if (resultTopic) {
+            setTopic(resultTopic);
+            setPageCount(1);
+          }
+        }}
+      />
       {selectedPin && (
         <div className="modal-backdrop">
           <div className="pin-detail-modal">

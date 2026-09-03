@@ -16,25 +16,23 @@ const TROLL_FILTERS = [
 
 export const InvertColorsToggle: React.FC<InvertColorsToggleProps> = ({ className = "", style }) => {
   // Start with invert colors ON by default
-  const [clickCount, setClickCount] = useState<number>(1);
   const [checked, setChecked] = useState<boolean>(true);
 
-  // Apply invert(1) on initial mount if not already set
+  // Apply invert(1) on initial mount
   React.useEffect(() => {
-    if (!document.documentElement.style.filter) {
-      document.documentElement.style.filter = "invert(1)";
-    }
+    document.documentElement.style.filter = "invert(1)";
   }, []);
 
   const handleClick = () => {
-    const nextCount = clickCount + 1;
-    setClickCount(nextCount);
-    // Visual toggle flip
-    setChecked((prev) => !prev);
-
-    // Apply cumulative or alternating troll filter (never restores to normal)
-    const filterToApply = TROLL_FILTERS[(nextCount - 1) % TROLL_FILTERS.length];
-    document.documentElement.style.filter = filterToApply;
+    if (checked) {
+      // Turning OFF: make everything completely normal again
+      document.documentElement.style.filter = "none";
+      setChecked(false);
+    } else {
+      // Turning ON: invert colors
+      document.documentElement.style.filter = "invert(1)";
+      setChecked(true);
+    }
   };
 
   return (
