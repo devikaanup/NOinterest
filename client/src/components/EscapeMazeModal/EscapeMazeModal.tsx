@@ -49,24 +49,6 @@ export const EscapeMazeModal: React.FC<EscapeMazeModalProps> = ({
       aria-modal="true"
       aria-labelledby="escape-maze-title"
     >
-      {/* Background Graffiti Callout: THE DISAPPEARANCE IS INTENTIONAL */}
-      <div className="escape-maze-bg-graffiti" aria-hidden="true">
-        <svg className="graffiti-arrow-svg" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M85 10 C60 12, 35 28, 20 46" stroke="#39ff14" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M12 36 L18 48 L32 44" stroke="#39ff14" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <div className="graffiti-text">
-          <span>THE</span>
-          <span>DIS-</span>
-          <span>APP-</span>
-          <span>EAR-</span>
-          <span>ANC-</span>
-          <span>E</span>
-          <span>IS</span>
-          <span>INTENTIONAL</span>
-        </div>
-      </div>
-
       {/* Floating Decoy "Exit frfr" buttons */}
       <DecoyExitButtons cardRef={cardRef} />
 

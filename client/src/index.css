@@ -332,3 +332,220 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
   background: #333333;
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   Water Pour Captcha Widget Styles
+   ========================================================================== */
+.water-pour-widget {
+  width: 100%;
+  background: #fbfbfa;
+  border: 2px solid #1e293b;
+  border-radius: 14px;
+  padding: 14px 14px 10px;
+  box-shadow: 4px 4px 0 #1e293b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.water-pour-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 6px;
+}
+
+.pour-instruction {
+  font: 700 12px/1.2 "IBM Plex Mono", ui-monospace, monospace;
+  color: #0f172a;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pour-taunt {
+  font: 700 12px/1.2 "Comic Sans MS", cursive, sans-serif;
+  color: #e11d48;
+  animation: spillShake 0.3s ease;
+}
+
+.water-pour-arena {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+}
+
+.pitcher-anchor {
+  position: absolute;
+  top: 6px;
+  left: calc(50% - 75px);
+  transform-origin: 80px 22px; /* Spout pivot */
+  transition: transform 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 5;
+  touch-action: none;
+}
+
+.pitcher-anchor.is-dragging {
+  transition: none;
+}
+
+.pitcher-svg {
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.water-stream {
+  position: absolute;
+  top: 22px;
+  left: 88px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.95), rgba(2, 132, 199, 0.95));
+  border-radius: 4px;
+  transform: rotate(-10deg);
+  pointer-events: none;
+  animation: streamWiggle 0.15s infinite alternate;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+}
+
+@keyframes streamWiggle {
+  from { transform: rotate(-12deg) scaleX(0.9); }
+  to { transform: rotate(-8deg) scaleX(1.1); }
+}
+
+.glass-container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.glass-container.glass-success {
+  filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.7));
+  animation: successPop 0.4s ease forwards;
+}
+
+.glass-container.glass-spill {
+  animation: spillShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.glass-svg {
+  display: block;
+  overflow: visible;
+}
+
+.splash-effect {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.splash-drop {
+  font-size: 20px;
+  display: inline-block;
+}
+
+.drop-1 { animation: dropUpLeft 0.5s ease-out; }
+.drop-2 { animation: dropUpCenter 0.5s ease-out; }
+.drop-3 { animation: dropUpRight 0.5s ease-out; }
+
+@keyframes dropUpLeft { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(-25px, -35px) scale(0.6); opacity: 0; } }
+@keyframes dropUpCenter { from { transform: translate(0, 0) scale(1.2); opacity: 1; } to { transform: translate(0, -45px) scale(0.6); opacity: 0; } }
+@keyframes dropUpRight { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(25px, -35px) scale(0.6); opacity: 0; } }
+
+.success-badge {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #22c55e;
+  color: #ffffff;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.5);
+  animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes badgePop {
+  from { transform: translate(-50%, -50%) scale(0); }
+  to { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes successPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+@keyframes spillShake {
+  10%, 90% { transform: translate3d(-3px, 0, 0); }
+  20%, 80% { transform: translate3d(5px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+.water-pour-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px 0;
+  font: 600 11px "IBM Plex Mono", monospace;
+  color: #475569;
+}
+
+.fill-stats b {
+  color: #0284c7;
+}
+
+.target-stats b {
+  color: #ea580c;
+}
+
+/* ==========================================================================
+   Moving Upside-Down Purple Evil Horn Emoji Wallpaper (Login Page Only)
+   ========================================================================== */
+.evil-emoji-wallpaper {
+  position: absolute;
+  inset: -100px;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ctext x='20' y='30' font-size='28' text-anchor='middle' transform='rotate(180 20 20)'%3E%F0%9F%91%BF%3C/text%3E%3Ctext x='60' y='70' font-size='28' text-anchor='middle' transform='rotate(180 60 60)'%3E%F0%9F%91%BF%3C/text%3E%3C/svg%3E");
+  background-size: 80px 80px;
+  background-repeat: repeat;
+  opacity: 0.32;
+  animation: scrollWallpaperLeft 16s linear infinite;
+}
+
+@keyframes scrollWallpaperLeft {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-160px, 0, 0);
+  }
+}
+
+.page-shell {
+  transition: background-color 1.2s ease-in-out;
+}

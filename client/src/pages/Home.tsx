@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import PhysicsFeed, { type Pin, PinPlaceholder, dashboardTone } from "@/components/PhysicsFeed";
 import { EscapeMazeModal } from "@/components/EscapeMazeModal";
+import { WaterPourCaptcha } from "@/components/WaterPourCaptcha";
 
 type Tile = {
   id: number;
@@ -744,6 +745,32 @@ function Dashboard() {
   );
 }
 
+const invertAtbashChar = (char: string): string => {
+  const code = char.charCodeAt(0);
+  if (code >= 97 && code <= 122) {
+    return String.fromCharCode(122 - (code - 97));
+  }
+  if (code >= 65 && code <= 90) {
+    return String.fromCharCode(90 - (code - 65));
+  }
+  return char;
+};
+
+const invertAtbashString = (str: string): string => {
+  return str.split("").map(invertAtbashChar).join("");
+};
+
+const RGB_CYCLE_COLORS = [
+  "#ff2a5f", // neon pink
+  "#00d2ff", // electric cyan
+  "#05df72", // neon green
+  "#ffd600", // electric yellow
+  "#a855f7", // purple
+  "#ff6b00", // orange
+  "#3b82f6", // blue
+  "#ec4899", // hot pink
+];
+
 export default function Home() {
   const [round, setRound] = useState(0);
   const [tiles, setTiles] = useState<Tile[]>(() => makeTiles());
@@ -757,9 +784,60 @@ export default function Home() {
   const [jitter, setJitter] = useState({ x: 0, y: 0, rotate: 0 });
   const [success, setSuccess] = useState(false);
   const [formMessage, setFormMessage] = useState("");
+  const [rgbIndex, setRgbIndex] = useState(0);
   const audio = useAudioEngine();
   const completeRef = useRef(false);
   const chaosTimeoutRef = useRef<number | null>(null);
+
+  // 2s RGB background color cycle timer
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setRgbIndex((idx) => (idx + 1) % RGB_CYCLE_COLORS.length);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // Inverted keyboard: a->z, b->y, etc.
+  const handleInvertedKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const inverted = invertAtbashChar(e.key);
+      if (inverted !== e.key) {
+        e.preventDefault();
+        const input = e.currentTarget;
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        const val = input.value;
+        const nextVal = val.slice(0, start) + inverted + val.slice(end);
+        setter(nextVal);
+        setFormMessage("");
+        requestAnimationFrame(() => {
+          input.setSelectionRange(start + 1, start + 1);
+        });
+      }
+    }
+  };
+
+  const handleInvertedPaste = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text");
+    const inverted = invertAtbashString(text);
+    const input = e.currentTarget;
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    const val = input.value;
+    const nextVal = val.slice(0, start) + inverted + val.slice(end);
+    setter(nextVal);
+    setFormMessage("");
+    requestAnimationFrame(() => {
+      input.setSelectionRange(start + inverted.length, start + inverted.length);
+    });
+  };
 
   const triggerDino = useCallback(() => {
     if (completeRef.current) return;
@@ -798,22 +876,6 @@ export default function Home() {
     };
   }, [audioReady, triggerDino]);
 
-  const toggleTile = (id: number) => {
-    setSelected((current) => current.includes(id) ? current.filter((tileId) => tileId !== id) : [...current, id]);
-  };
-
-  const verify = () => {
-    if (round === 1) {
-      setVerified(true);
-      setMessage("Verification complete. We're as confused as you are.");
-      return;
-    }
-    setMessage(REJECTIONS[round]);
-    setRound((current) => current + 1);
-    setSelected([]);
-    setTiles(makeTiles());
-  };
-
   const signIn = () => {
     if (!username.trim() || !password.trim()) {
       setFormMessage("Please enter literally anything in both fields.");
@@ -827,7 +889,12 @@ export default function Home() {
   if (success) return <Dashboard />;
 
   return (
-    <main className={`page-shell ${isChaos ? "is-chaos" : ""}`}>
+    <main
+      className={`page-shell ${isChaos ? "is-chaos" : ""}`}
+      style={{ backgroundColor: RGB_CYCLE_COLORS[rgbIndex] }}
+    >
+      {/* Moving upside-down purple evil horn emoji wallpaper */}
+      <div className="evil-emoji-wallpaper" aria-hidden="true" />
       {isChaos && <Dino />}
       <div className="noise-layer" aria-hidden="true" />
       <div className="shell-ornament ornament-left" aria-hidden="true">01 / THE GAUNTLET</div>
@@ -846,41 +913,50 @@ export default function Home() {
         <form className="gauntlet-form" onSubmit={(event) => { event.preventDefault(); if (verified) signIn(); }}>
           <label className="field-group">
             <span>Username or email</span>
-            <input className="control" value={username} onChange={(event) => { setUsername(event.target.value); setFormMessage(""); }} placeholder="you@example.com" autoComplete="username" />
+            <input
+              className="control"
+              value={username}
+              onChange={(event) => { setUsername(event.target.value); setFormMessage(""); }}
+              onKeyDown={(e) => handleInvertedKeyDown(e, setUsername)}
+              onPaste={(e) => handleInvertedPaste(e, setUsername)}
+              placeholder="you@example.com"
+              autoComplete="username"
+            />
           </label>
           <label className="field-group">
             <span>Password</span>
-            <input className="control" type="password" value={password} onChange={(event) => { setPassword(event.target.value); setFormMessage(""); }} placeholder="Something memorable" autoComplete="current-password" />
+            <input
+              className="control"
+              type="password"
+              value={password}
+              onChange={(event) => { setPassword(event.target.value); setFormMessage(""); }}
+              onKeyDown={(e) => handleInvertedKeyDown(e, setPassword)}
+              onPaste={(e) => handleInvertedPaste(e, setPassword)}
+              placeholder="Something memorable"
+              autoComplete="current-password"
+            />
           </label>
 
           <div className="captcha-box">
             <div className="captcha-header">
               <div>
-                <span className="micro-label">SECURITY CHECK · {verified ? "DONE" : `ROUND 0${round + 1} / 02`}</span>
-                <p className="captcha-prompt">{verified ? "You have survived the verification process." : PROMPTS[round]}</p>
+                <span className="micro-label">SECURITY CHECK · {verified ? "DONE" : "POUR TEST"}</span>
+                <p className="captcha-prompt">{verified ? "Verification complete. Proceed to sign in." : "Pour to the line. Don't overshoot."}</p>
               </div>
               <div className={`status-light ${verified ? "is-verified" : ""}`} title={verified ? "Verified" : "Awaiting verification"} />
             </div>
             {verified ? (
               <div className="verified-state">
                 <div className="verified-badge">✓</div>
-                <div><strong>Verified</strong><span>{message}</span></div>
+                <div><strong>Verified</strong><span>{message || "Steady hands confirmed."}</span></div>
               </div>
             ) : (
-              <>
-                <div className="tile-grid" role="group" aria-label="CAPTCHA tile selection">
-                  {tiles.map((tile) => (
-                    <button key={tile.id} type="button" className={`captcha-tile ${selected.includes(tile.id) ? "is-selected" : ""}`} onClick={() => toggleTile(tile.id)} style={{ backgroundColor: tile.color }} aria-pressed={selected.includes(tile.id)}>
-                      <span className="tile-number">0{tile.id + 1}</span>
-                      <Squiggle variant={tile.shape} />
-                    </button>
-                  ))}
-                </div>
-                <div className="captcha-footer">
-                  <span className={`rejection-message ${message ? "visible" : ""}`}>{message || "Choose carefully. Or don't."}</span>
-                  <AppButton onClick={verify} className="verify-button">Verify <span className="button-arrow">↗</span></AppButton>
-                </div>
-              </>
+              <WaterPourCaptcha
+                onSuccess={() => {
+                  setVerified(true);
+                  setMessage("Steady hands confirmed.");
+                }}
+              />
             )}
           </div>
 
