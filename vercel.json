@@ -1,11 +1,19 @@
 {
-  "buildCommand": "vite build",
-  "outputDirectory": "dist/public",
-  "framework": "vite",
+  "services": {
+    "nointerest": {
+      "root": ".",
+      "framework": "vite",
+      "buildCommand": "vite build",
+      "outputDirectory": "dist/public"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": {
+        "type": "service",
+        "service": "nointerest"
+      }
     }
   ]
 }
