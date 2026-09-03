@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 interface WiringTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onComplete?: () => void;
 }
 
 interface WireNode {
@@ -24,7 +25,7 @@ function shuffleArray<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClose }) => {
+export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClose, onComplete }) => {
   const [leftWires, setLeftWires] = useState<WireNode[]>([]);
   const [rightWires, setRightWires] = useState<WireNode[]>([]);
   const [connections, setConnections] = useState<Record<string, string>>({}); // leftColor -> rightColor
@@ -226,6 +227,8 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
             if (Object.keys(nextConns).length === leftWires.length) {
               setIsCompleted(true);
               playCompleteAudio();
+              onComplete?.();
+              window.dispatchEvent(new CustomEvent("internet-connected"));
               setTimeout(() => {
                 onClose();
               }, 1400);
@@ -417,22 +420,30 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
 export const ConnectToInternetButton: React.FC<{
   className?: string;
   style?: React.CSSProperties;
-}> = ({ className = "", style }) => {
+  isConnected?: boolean;
+  onConnectSuccess?: () => void;
+}> = ({ className = "", style, isConnected = false, onConnectSuccess }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
       <button
         type="button"
-        className={`troll-connect-btn ${className}`}
+        className={`troll-connect-btn ${isConnected ? "is-connected-online" : ""} ${className}`}
         style={style}
         onClick={() => setIsOpen(true)}
-        title="Connect to Internet"
+        title={isConnected ? "Internet Connected!" : "Connect to Internet"}
       >
-        <span className="connect-icon">🌐</span>
-        <span>Connect to Internet</span>
+        <span className="connect-icon">{isConnected ? "🟢" : "🌐"}</span>
+        <span>{isConnected ? "Connected" : "Connect to Internet"}</span>
       </button>
-      <WiringTaskModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <WiringTaskModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onComplete={() => {
+          onConnectSuccess?.();
+        }}
+      />
     </>
   );
 };

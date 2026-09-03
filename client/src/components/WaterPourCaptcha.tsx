@@ -383,40 +383,52 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
           }}
           title="Drag down or right to tilt and pour"
         >
-          <svg className="pitcher-svg" viewBox="0 0 100 80" width="110" height="88">
-            {/* Jug Body */}
+          <svg className="pitcher-svg" viewBox="0 0 100 80" width="115" height="92">
+            <defs>
+              <filter id="pitcherGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#38bdf8" floodOpacity="0.9" />
+              </filter>
+            </defs>
+
+            {/* Jug Body - Bright gleaming white ceramic with neon cyan stroke */}
             <path
               d="M 25,20 L 75,20 C 85,20 90,32 86,48 C 82,64 74,74 50,74 C 26,74 18,64 14,48 C 10,32 15,20 25,20 Z"
-              fill="#e2e8f0"
-              stroke="#1e293b"
-              strokeWidth="3.5"
+              fill="#ffffff"
+              stroke="#00f0ff"
+              strokeWidth="4"
+              filter="url(#pitcherGlow)"
             />
-            {/* Water Inside Pitcher (visible through translucent glass) */}
+            {/* Water Inside Pitcher (glowing electric cyan) */}
             <path
               d="M 18,36 C 30,32 70,32 82,36 C 80,55 72,68 50,68 C 28,68 20,55 18,36 Z"
-              fill="rgba(56, 189, 248, 0.85)"
+              fill="#00d4ff"
             />
-            {/* Jug Spout */}
+            {/* Jug Spout - Bright with neon stroke */}
             <path
-              d="M 75,20 L 92,16 C 94,18 90,26 84,28 Z"
-              fill="#cbd5e1"
-              stroke="#1e293b"
-              strokeWidth="3.5"
+              d="M 75,20 L 93,15 C 95,17 91,26 84,28 Z"
+              fill="#e0f2fe"
+              stroke="#00f0ff"
+              strokeWidth="4"
               strokeLinejoin="round"
+              filter="url(#pitcherGlow)"
             />
-            {/* Jug Handle */}
+            {/* Jug Handle - Bright neon cyan */}
             <path
               d="M 17,25 C 2,27 0,55 16,62"
               fill="none"
-              stroke="#1e293b"
-              strokeWidth="5"
+              stroke="#00f0ff"
+              strokeWidth="5.5"
               strokeLinecap="round"
+              filter="url(#pitcherGlow)"
             />
-            {/* Drag hint indicator */}
+            {/* Drag hint indicator - Bright high contrast badge */}
             {!isPouring && waterLevel === 0 && !isSuccess && (
-              <text x="50" y="52" textAnchor="middle" fill="#0f172a" fontSize="8" fontWeight="800" fontFamily="sans-serif">
-                DRAG ↷
-              </text>
+              <g>
+                <rect x="25" y="38" width="50" height="22" rx="6" fill="#0284c7" stroke="#38bdf8" strokeWidth="2"/>
+                <text x="50" y="53" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="900" fontFamily="'IBM Plex Mono', monospace">
+                  DRAG ↷
+                </text>
+              </g>
             )}
           </svg>
 
@@ -437,11 +449,21 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
         <div className={`glass-container ${isSuccess ? "glass-success" : ""} ${isSpilling ? "glass-spill" : ""}`}>
           <svg className="glass-svg" viewBox={`0 0 ${glassWidth} ${glassHeight}`} width={glassWidth} height={glassHeight}>
             <defs>
-              {/* Liquid Gradient */}
+              {/* Vibrant Liquid Gradient */}
               <linearGradient id="liquidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="0%" stopColor="#00f0ff" />
                 <stop offset="100%" stopColor="#0284c7" />
               </linearGradient>
+
+              {/* Glowing filter for neon cyan glass outline */}
+              <filter id="glassNeonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="4.5" floodColor="#00f0ff" floodOpacity="0.95" />
+              </filter>
+
+              {/* Target glowing filter */}
+              <filter id="targetOrangeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#ff9f1c" floodOpacity="1" />
+              </filter>
 
               {/* Clip path for irregular geometric glass */}
               <clipPath id="irregularGlassClip">
@@ -449,13 +471,19 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
               </clipPath>
             </defs>
 
+            {/* Glass Interior Glow Fill */}
+            <polygon
+              points={polygonPoints}
+              fill="rgba(0, 240, 255, 0.1)"
+            />
+
             {/* Target Tolerance Zone Band */}
             <rect
               x="0"
               y={targetY - targetToleranceHeight / 2}
               width={glassWidth}
               height={targetToleranceHeight}
-              fill="rgba(245, 158, 11, 0.2)"
+              fill="rgba(255, 159, 28, 0.28)"
               clipPath="url(#irregularGlassClip)"
             />
 
@@ -466,42 +494,44 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
                 {/* Surface highlight */}
                 <path
                   d={`M 0,${waveY1} Q ${glassWidth * 0.5},${(waveY1 + waveY2) / 2} ${glassWidth},${waveY2}`}
-                  stroke="#e0f2fe"
-                  strokeWidth="2.5"
+                  stroke="#ffffff"
+                  strokeWidth="3.5"
                   fill="none"
                 />
               </g>
             )}
 
-            {/* Target Line - Clipped inside the glass */}
+            {/* Target Line - Bright Glowing Neon Orange */}
             <line
               x1="0"
               y1={targetY}
               x2={glassWidth}
               y2={targetY}
-              stroke="#ea580c"
-              strokeWidth="2.5"
-              strokeDasharray="4 2"
+              stroke="#ff9f1c"
+              strokeWidth="3.5"
+              strokeDasharray="5 3"
               clipPath="url(#irregularGlassClip)"
+              filter="url(#targetOrangeGlow)"
             />
 
             {/* Target Marker Label Arrow on the right edge */}
             <g transform={`translate(${glassWidth - 4}, ${targetY})`}>
-              <polygon points="0,0 6,-4 6,4" fill="#ea580c" />
+              <polygon points="0,0 8,-5 8,5" fill="#ff9f1c" filter="url(#targetOrangeGlow)" />
             </g>
 
-            {/* Irregular Geometric Glass Outline */}
+            {/* Irregular Geometric Glass Outline - BRIGHT NEON CYAN GLOW */}
             <polygon
               points={polygonPoints}
               fill="none"
-              stroke="#0f172a"
-              strokeWidth="4"
+              stroke="#00f0ff"
+              strokeWidth="5"
               strokeLinejoin="round"
               strokeLinecap="round"
+              filter="url(#glassNeonGlow)"
             />
 
-            {/* Top Rim Lip */}
-            <line x1="50" y1="14" x2="76" y2="14" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" />
+            {/* Top Rim Lip - Glowing White / Cyan */}
+            <line x1="50" y1="14" x2="76" y2="14" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
           </svg>
 
           {/* Splash Overflows on Spill */}

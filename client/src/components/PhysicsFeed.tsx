@@ -30,24 +30,29 @@ export function PinPlaceholder({
   pin,
   index,
   large = false,
+  isInternetConnected = false,
+  onOpenWiringModal,
 }: {
   pin: Pin;
   index: number;
   large?: boolean;
+  isInternetConnected?: boolean;
+  onOpenWiringModal?: () => void;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const hasImage = !!pin.imageUrl && pin.imageUrl !== "placeholder" && !imageError;
+  // Images do NOT load until internet is connected!
+  const hasImage = isInternetConnected && !!pin.imageUrl && pin.imageUrl !== "placeholder" && !imageError;
 
   return (
     <div
-      className={`pin-art ${large ? "pin-art-large" : ""}`}
+      className={`pin-art ${large ? "pin-art-large" : ""} ${!isInternetConnected ? "is-no-internet" : ""}`}
       style={{
         background: `linear-gradient(${115 + index * 21}deg, ${dashboardTone(index)}, ${dashboardTone(index + 3)})`,
       }}
     >
-      {hasImage && (
+      {hasImage ? (
         <img
           src={pin.imageUrl}
           alt={pin.title}
@@ -56,8 +61,21 @@ export function PinPlaceholder({
           onLoad={() => setImageLoaded(true)}
           onError={() => setImageError(true)}
         />
+      ) : !isInternetConnected ? (
+        <div
+          className="pin-no-internet-overlay"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenWiringModal?.();
+          }}
+          title="Click to connect to internet"
+        >
+          <span className="no-internet-arrow" aria-hidden="true">↑</span>
+          <span className="no-internet-text">Connect to Internet</span>
+        </div>
+      ) : (
+        <span>{pin.topic}</span>
       )}
-      {!imageLoaded && <span>{pin.topic}</span>}
       <b>#{(index % 18) + 1}</b>
       <i className={`art-sticker sticker-${index % 5}`} />
     </div>
@@ -79,6 +97,8 @@ interface PhysicsFeedProps {
   onSelectPin: (pin: Pin) => void;
   onThudSound: () => void;
   isPaused: boolean;
+  isInternetConnected?: boolean;
+  onOpenWiringModal?: () => void;
 }
 
 export default function PhysicsFeed({
@@ -86,6 +106,8 @@ export default function PhysicsFeed({
   onSelectPin,
   onThudSound,
   isPaused,
+  isInternetConnected = false,
+  onOpenWiringModal,
 }: PhysicsFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<Matter.Engine | null>(null);
@@ -432,7 +454,12 @@ export default function PhysicsFeed({
             onPointerDown={(e) => handlePointerDown(pin, e)}
           >
             <div className="pin-card-inner">
-              <PinPlaceholder pin={pin} index={index} />
+              <PinPlaceholder
+                pin={pin}
+                index={index}
+                isInternetConnected={isInternetConnected}
+                onOpenWiringModal={onOpenWiringModal}
+              />
               <div className="pin-info">
                 <h2>{pin.title}</h2>
                 <p>

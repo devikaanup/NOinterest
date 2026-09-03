@@ -4,7 +4,7 @@ import { EscapeMazeModal } from "@/components/EscapeMazeModal";
 import { WaterPourCaptcha } from "@/components/WaterPourCaptcha";
 import { InvertColorsToggle } from "@/components/InvertColorsToggle";
 import { TurnOffButton } from "@/components/TurnOffModal";
-import { ConnectToInternetButton } from "@/components/WiringTaskModal";
+import WiringTaskModal, { ConnectToInternetButton } from "@/components/WiringTaskModal";
 import { LuckCheckModal } from "@/components/LuckCheckModal";
 import { getPinsForTopic } from "@/data/topicCatalog";
 
@@ -388,8 +388,16 @@ function Dashboard() {
   const [universe, setUniverse] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pageCount, setPageCount] = useState(1);
+  const [isInternetConnected, setIsInternetConnected] = useState<boolean>(false);
+  const [isWiringOpen, setIsWiringOpen] = useState<boolean>(false);
   const sound = useDashboardSound();
   const loadedTopicRef = useRef("");
+
+  useEffect(() => {
+    const handleConnect = () => setIsInternetConnected(true);
+    window.addEventListener("internet-connected", handleConnect);
+    return () => window.removeEventListener("internet-connected", handleConnect);
+  }, []);
 
   const loadPins = useCallback(async (nextTopic: string, append = false) => {
     setLoading(true);
@@ -449,7 +457,10 @@ function Dashboard() {
         </form>
         <div className="troll-toolbar">
           <InvertColorsToggle />
-          <ConnectToInternetButton />
+          <ConnectToInternetButton
+            isConnected={isInternetConnected}
+            onConnectSuccess={() => setIsInternetConnected(true)}
+          />
           <TurnOffButton />
         </div>
         <div className="try-closing-wrapper">
@@ -509,7 +520,9 @@ function Dashboard() {
         pins={pins}
         onSelectPin={selectPin}
         onThudSound={sound.thud}
-        isPaused={isEscapeMazeOpen || universe}
+        isPaused={isEscapeMazeOpen || universe || isWiringOpen}
+        isInternetConnected={isInternetConnected}
+        onOpenWiringModal={() => setIsWiringOpen(true)}
       />
       {loading && <div className="feed-loading">fetching more questionable inspiration...</div>}
       {normalColors && <div className="colors-toast">Fine. You earned normal colours.</div>}
@@ -524,11 +537,22 @@ function Dashboard() {
           }
         }}
       />
+      <WiringTaskModal
+        isOpen={isWiringOpen}
+        onClose={() => setIsWiringOpen(false)}
+        onComplete={() => setIsInternetConnected(true)}
+      />
       {selectedPin && (
         <div className="modal-backdrop">
           <div className="pin-detail-modal">
             <button className="modal-close" onClick={() => setSelectedPin(null)}>×</button>
-            <PinPlaceholder pin={selectedPin} index={pins.indexOf(selectedPin)} large />
+            <PinPlaceholder
+              pin={selectedPin}
+              index={pins.indexOf(selectedPin)}
+              large
+              isInternetConnected={isInternetConnected}
+              onOpenWiringModal={() => setIsWiringOpen(true)}
+            />
             <div className="detail-copy">
               <span>{selectedPin.topic}</span>
               <h2>{selectedPin.title}</h2>
