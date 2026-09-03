@@ -35,6 +35,11 @@ export function PinPlaceholder({
   index: number;
   large?: boolean;
 }) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const hasImage = !!pin.imageUrl && pin.imageUrl !== "placeholder" && !imageError;
+
   return (
     <div
       className={`pin-art ${large ? "pin-art-large" : ""}`}
@@ -42,7 +47,17 @@ export function PinPlaceholder({
         background: `linear-gradient(${115 + index * 21}deg, ${dashboardTone(index)}, ${dashboardTone(index + 3)})`,
       }}
     >
-      <span>{pin.topic}</span>
+      {hasImage && (
+        <img
+          src={pin.imageUrl}
+          alt={pin.title}
+          className={`pin-art-img ${imageLoaded ? "is-loaded" : ""}`}
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageError(true)}
+        />
+      )}
+      {!imageLoaded && <span>{pin.topic}</span>}
       <b>#{(index % 18) + 1}</b>
       <i className={`art-sticker sticker-${index % 5}`} />
     </div>
