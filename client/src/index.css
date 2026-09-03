@@ -202,9 +202,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 .app-button:active:not(:disabled) { transform: scale(0.97); }
 .app-button:disabled { color: #a8a59e; background: #dedcd6; box-shadow: none; cursor: not-allowed; }
 .verify-button { min-width: 100px; height: 34px; padding: 0 12px; border-radius: 7px; }
-.sign-button { min-width: 118px; height: 45px; font-size: 12px; }
+.sign-button { min-width: 175px; height: 42px; font-size: 11px; padding: 0 14px; letter-spacing: 0.04em; white-space: nowrap; }
+.sign-button-ready { background: #16a34a !important; box-shadow: 0 5px 14px rgba(22, 163, 74, 0.4) !important; }
+.sign-button-ready:hover { background: #15803d !important; }
 .button-arrow { font-size: 16px; font-weight: 400; line-height: 0; }
-.submit-row { min-height: 53px; padding-top: 5px; }
+.submit-row { display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-height: 53px; padding-top: 5px; }
+.sign-in-action-cluster { display: flex; align-items: center; gap: 10px; width: 100%; }
+.sign-in-type-input { flex: 1; min-width: 140px; height: 42px; padding: 0 12px; font: 700 12px/1 "IBM Plex Mono", monospace; letter-spacing: 0.04em; border-radius: 8px; border: 2px solid #ccc8c0; background: #ffffff; color: #171717; transition: all 0.2s ease; }
+.sign-in-type-input:focus { border-color: #ff5ca8; outline: none; box-shadow: 0 0 0 3px rgba(255, 92, 168, 0.2); }
 .submit-status { display: flex; align-items: center; gap: 8px; color: #8d8982; font-size: 11px; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #c5c1b8; }
 .status-dot.ready { background: #5c936f; box-shadow: 0 0 0 3px rgba(92, 147, 111, 0.13); }

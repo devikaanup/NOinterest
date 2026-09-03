@@ -598,6 +598,7 @@ export default function Home() {
   const [jitter, setJitter] = useState({ x: 0, y: 0, rotate: 0 });
   const [success, setSuccess] = useState(false);
   const [formMessage, setFormMessage] = useState("");
+  const [signInText, setSignInText] = useState("");
   const [rgbIndex, setRgbIndex] = useState(0);
   const audio = useAudioEngine();
   const completeRef = useRef(false);
@@ -695,6 +696,14 @@ export default function Home() {
       setFormMessage("Please enter literally anything in both fields.");
       return;
     }
+    if (!verified) {
+      setFormMessage("Please complete the pour test to verify first.");
+      return;
+    }
+    if (signInText.trim().toLowerCase() !== "sign in") {
+      setFormMessage('You must literally type "sign in" to sign in.');
+      return;
+    }
     completeRef.current = true;
     audio.stopAudio();
     setSuccess(true);
@@ -776,10 +785,38 @@ export default function Home() {
 
           <div className="submit-row">
             <div className="submit-status">
-              <span className={`status-dot ${verified ? "ready" : ""}`} />
-              {verified ? "The door is technically open." : "Complete the gauntlet to continue."}
+              <span className={`status-dot ${verified && signInText.trim().toLowerCase() === "sign in" ? "ready" : ""}`} />
+              {verified
+                ? signInText.trim().toLowerCase() === "sign in"
+                  ? "Phrase matched. Press Enter or click to proceed."
+                  : "Type 'sign in' to sign in."
+                : "Complete the gauntlet to continue."}
             </div>
-            <AppButton onClick={signIn} disabled={!verified} className="sign-button">Sign In <span className="button-arrow">↗</span></AppButton>
+            <div className="sign-in-action-cluster">
+              <input
+                className="sign-in-type-input control"
+                value={signInText}
+                onChange={(e) => {
+                  setSignInText(e.target.value);
+                  setFormMessage("");
+                }}
+                placeholder='type "sign in"'
+                aria-label='type "sign in"'
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    signIn();
+                  }
+                }}
+              />
+              <AppButton
+                onClick={signIn}
+                disabled={!verified}
+                className={`sign-button ${signInText.trim().toLowerCase() === "sign in" ? "sign-button-ready" : ""}`}
+              >
+                type sign in to sign in <span className="button-arrow">↗</span>
+              </AppButton>
+            </div>
           </div>
           {formMessage && <p className="form-message">{formMessage}</p>}
         </form>
