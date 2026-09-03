@@ -4,9 +4,13 @@
 :root {
   font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   color: #252422;
-  background: #f5f5f0;
+  background: #000000;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --bg: #000000;
+  --red-deep: #5c0a12;
+  --red-bright: #b3121f;
+  --white: #ffffff;
   --red: #d64545;
   --ink: #252422;
   --muted: #77736d;
@@ -16,8 +20,8 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 1100px; background: #f5f5f0; filter: invert(1); }
-body { margin: 0; min-width: 1100px; min-height: 100vh; background: #f5f5f0; }
+html { min-width: 1100px; background: #000000; filter: invert(1); }
+body { margin: 0; min-width: 1100px; min-height: 100vh; background: #000000; }
 button, input { font: inherit; }
 button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69, 0.28); outline-offset: 3px; }
 
@@ -31,34 +35,78 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
   align-items: center;
   justify-content: center;
   padding: 15px 0;
-  background:
-    radial-gradient(circle at 19% 16%, rgba(214, 69, 69, 0.045), transparent 26%),
-    radial-gradient(circle at 83% 79%, rgba(101, 132, 109, 0.045), transparent 27%),
-    #f5f5f0;
-  transition: background 400ms var(--ease-out);
+  background: #000000;
+  background: var(--bg, #000000);
 }
 
-.page-shell::before, .page-shell::after {
-  content: "";
+/* Layer 0: hero video, desaturated + dimmed so any source colors
+   collapse to a neutral base the red wash can tint cleanly */
+.hero-photo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  animation: photo-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+.hero-photo.is-in { animation: none; opacity: 1; }
+
+.hero-photo video {
   position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) brightness(0.55) contrast(1.12);
+}
+
+@keyframes photo-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Layer 1: dark red ambient wash. Shows even with no video underneath,
+   so the palette holds together whether or not the video loads. */
+.tint {
+  position: fixed;
+  inset: -10%;
+  z-index: 1;
   pointer-events: none;
-  opacity: 0.45;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 32%,
+    color-mix(in srgb, var(--red-bright) 55%, transparent) 0%,
+    color-mix(in srgb, var(--red-deep) 30%, transparent) 45%,
+    transparent 75%
+  );
 }
 
-.page-shell::before {
-  top: 0;
-  left: 0;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle at 0 0, rgba(214, 69, 69, 0.09), transparent 68%);
+/* Layer 2: grain, desaturated turbulence + white sparkle via screen blend */
+.grain {
+  position: fixed;
+  inset: -200px;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.08;
+  mix-blend-mode: screen;
+  background-repeat: repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix in='t' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 1s steps(6) infinite;
 }
 
-.page-shell::after {
-  bottom: 0;
-  right: 0;
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle at 100% 100%, rgba(37, 36, 34, 0.04), transparent 70%);
+@keyframes grain-shift {
+  0%   { transform: translate(0,0); }
+  16%  { transform: translate(-3%, 4%); }
+  33%  { transform: translate(2%, -3%); }
+  50%  { transform: translate(-2%, 2%); }
+  66%  { transform: translate(3%, -4%); }
+  83%  { transform: translate(-4%, -2%); }
+  100% { transform: translate(0,0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .hero-photo { opacity: 1; }
+  .grain { opacity: 0.05; }
 }
 
 .noise-layer {
@@ -71,10 +119,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 
 .shell-ornament, .bottom-caption {
   position: absolute;
-  color: #a19d95;
+  color: #d4d0c7;
   font: 600 9px/1 "IBM Plex Mono", ui-monospace, monospace;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  z-index: 2;
 }
 .shell-ornament { top: 20px; }
 .ornament-left { left: 30px; }
@@ -693,33 +742,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
   color: #ea580c;
 }
 
-/* ==========================================================================
-   Moving Angry Face Doodles Wallpaper (Login Page Only)
-   ========================================================================== */
-.evil-emoji-wallpaper {
-  position: absolute;
-  inset: -120px;
-  pointer-events: none;
-  z-index: 1;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg transform='translate(6, 6)'%3E%3Ccircle cx='28' cy='28' r='23' fill='%23ffffff' stroke='%2318181b' stroke-width='2.8' fill-opacity='0.6'/%3E%3Cpath d='M15,19 L26,25' stroke='%2318181b' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M41,19 L30,25' stroke='%2318181b' stroke-width='3.2' stroke-linecap='round'/%3E%3Ccircle cx='20' cy='29' r='3' fill='%2318181b'/%3E%3Ccircle cx='36' cy='29' r='3' fill='%2318181b'/%3E%3Cpath d='M17,41 Q28,34 39,41' fill='none' stroke='%2318181b' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M37,10 Q41,7 45,10 M41,6 L41,14' stroke='%23dc2626' stroke-width='1.8' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(66, 66)'%3E%3Ccircle cx='28' cy='28' r='23' fill='%23ffffff' stroke='%2318181b' stroke-width='2.8' fill-opacity='0.6'/%3E%3Cpath d='M15,19 L26,25' stroke='%2318181b' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M41,19 L30,25' stroke='%2318181b' stroke-width='3.2' stroke-linecap='round'/%3E%3Ccircle cx='20' cy='29' r='3' fill='%2318181b'/%3E%3Ccircle cx='36' cy='29' r='3' fill='%2318181b'/%3E%3Cpath d='M17,41 Q28,34 39,41' fill='none' stroke='%2318181b' stroke-width='3.2' stroke-linecap='round'/%3E%3Cpath d='M37,10 Q41,7 45,10 M41,6 L41,14' stroke='%23dc2626' stroke-width='1.8' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 120px 120px;
-  background-repeat: repeat;
-  opacity: 0.35;
-  animation: scrollWallpaperLeft 16s linear infinite;
-}
 
-@keyframes scrollWallpaperLeft {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-240px, 0, 0);
-  }
-}
-
-.page-shell {
-  transition: background-color 1.2s ease-in-out;
-}
 
 /* ==========================================================================
    Troll UI: Invert Colors Toggle, Turn Off Button, Connect to Internet Button

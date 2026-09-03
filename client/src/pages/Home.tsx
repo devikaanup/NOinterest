@@ -635,17 +635,6 @@ const handleInvertedPaste = (
   });
 };
 
-const RGB_CYCLE_COLORS = [
-  "#ff2a5f", // neon pink
-  "#00d2ff", // electric cyan
-  "#05df72", // neon green
-  "#ffd600", // electric yellow
-  "#a855f7", // purple
-  "#ff6b00", // orange
-  "#3b82f6", // blue
-  "#ec4899", // hot pink
-];
-
 export default function Home() {
   const [round, setRound] = useState(0);
   const [tiles, setTiles] = useState<Tile[]>(() => makeTiles());
@@ -660,20 +649,19 @@ export default function Home() {
   const [success, setSuccess] = useState(false);
   const [formMessage, setFormMessage] = useState("");
   const [signInText, setSignInText] = useState("");
-  const [rgbIndex, setRgbIndex] = useState(0);
+  const [videoIsIn, setVideoIsIn] = useState(false);
   const audio = useAudioEngine();
   const completeRef = useRef(false);
   const chaosTimeoutRef = useRef<number | null>(null);
 
-  // 2s RGB background color cycle timer
+
+
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setRgbIndex((idx) => (idx + 1) % RGB_CYCLE_COLORS.length);
-    }, 2000);
-    return () => window.clearInterval(timer);
+    const timer = window.setTimeout(() => {
+      setVideoIsIn(true);
+    }, 1300);
+    return () => window.clearTimeout(timer);
   }, []);
-
-
 
   const triggerDino = useCallback(() => {
     if (completeRef.current) return;
@@ -733,14 +721,33 @@ export default function Home() {
   if (success) return <Dashboard />;
 
   return (
-    <main
-      className={`page-shell ${isChaos ? "is-chaos" : ""}`}
-      style={{ backgroundColor: RGB_CYCLE_COLORS[rgbIndex] }}
-    >
-      {/* Moving upside-down purple evil horn emoji wallpaper */}
-      <div className="evil-emoji-wallpaper" aria-hidden="true" />
+    <main className={`page-shell ${isChaos ? "is-chaos" : ""}`}>
+      {/* Layer 0: hero video, desaturated + dimmed */}
+      <div
+        className={`hero-photo ${videoIsIn ? "is-in" : ""}`}
+        id="heroPhoto"
+        onAnimationEnd={() => setVideoIsIn(true)}
+      >
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260818_072341_50851634-bbc3-4c33-9acc-7647d4db44aa.mp4"
+          onError={(e) => {
+            const el = (e.currentTarget as HTMLElement).closest(".hero-photo");
+            if (el) (el as HTMLElement).style.display = "none";
+          }}
+        />
+      </div>
+
+      {/* Layer 1: dark red ambient wash */}
+      <div className="tint" aria-hidden="true" />
+
+      {/* Layer 2: grain, desaturated turbulence + white sparkle via screen blend */}
+      <div className="grain" aria-hidden="true" />
+
       {isChaos && <Dino />}
-      <div className="noise-layer" aria-hidden="true" />
       <div className="shell-ornament ornament-left" aria-hidden="true">01 / THE GAUNTLET</div>
       <div className="shell-ornament ornament-right" aria-hidden="true">NO REAL AUTH · NO MERCY</div>
       <section className="card-wrap" style={{ transform: `translate3d(${jitter.x}px, ${jitter.y}px, 0) rotate(${jitter.rotate}deg)` }}>
