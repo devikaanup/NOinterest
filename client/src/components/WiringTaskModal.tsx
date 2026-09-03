@@ -135,25 +135,9 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
       const currentX = tipPosRef.current.x;
       const currentY = tipPosRef.current.y;
 
-      // Distance from starting anchor terminal
-      const distFromAnchor = Math.hypot(currentX - anchorX, currentY - anchorY);
-
-      // Strong elastic restorative tension pulling backward toward anchor
-      // Tension factor ramps non-linearly with stretch distance: makes wire heavy and resistant!
-      const tensionMultiplier = 0.065 * Math.pow(1 + distFromAnchor / 140, 1.35);
-      const elasticForceX = (anchorX - currentX) * tensionMultiplier;
-      const elasticForceY = (anchorY - currentY) * tensionMultiplier;
-
-      // Spring pull force toward user's pointer
-      const springPullX = (targetX - currentX) * 0.16;
-      const springPullY = (targetY - currentY) * 0.16;
-
-      // Heavy silicone/rubber damping
-      tipVelRef.current.x = (tipVelRef.current.x + springPullX + elasticForceX) * 0.72;
-      tipVelRef.current.y = (tipVelRef.current.y + springPullY + elasticForceY) * 0.72;
-
-      tipPosRef.current.x += tipVelRef.current.x;
-      tipPosRef.current.y += tipVelRef.current.y;
+      // Smooth, direct tracking with zero resistant drag
+      tipPosRef.current.x += (targetX - currentX) * 0.8;
+      tipPosRef.current.y += (targetY - currentY) * 0.8;
 
       setWireTip({ x: tipPosRef.current.x, y: tipPosRef.current.y });
 
@@ -203,19 +187,34 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
     const pRect = panelRef.current.getBoundingClientRect();
     const tipScreenX = pRect.left + tipPosRef.current.x;
     const tipScreenY = pRect.top + tipPosRef.current.y;
+    const mouseScreenX = pRect.left + mouseTargetRef.current.x;
+    const mouseScreenY = pRect.top + mouseTargetRef.current.y;
 
     let matched = false;
     for (const rw of rightWires) {
       const nodeEl = rightRefs.current[rw.color];
       if (nodeEl) {
         const rect = nodeEl.getBoundingClientRect();
-        // Latch test against the REAL elastic wire tip position
-        if (
-          tipScreenX >= rect.left - 24 &&
-          tipScreenX <= rect.right + 24 &&
-          tipScreenY >= rect.top - 20 &&
-          tipScreenY <= rect.bottom + 20
-        ) {
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const distTip = Math.hypot(tipScreenX - centerX, tipScreenY - centerY);
+        const distMouse = Math.hypot(mouseScreenX - centerX, mouseScreenY - centerY);
+
+        // Generous, forgiving snap detection (65px radius or 45px box expansion)
+        const isNear =
+          distTip <= 65 ||
+          distMouse <= 65 ||
+          (tipScreenX >= rect.left - 45 &&
+            tipScreenX <= rect.right + 45 &&
+            tipScreenY >= rect.top - 35 &&
+            tipScreenY <= rect.bottom + 35) ||
+          (mouseScreenX >= rect.left - 45 &&
+            mouseScreenX <= rect.right + 45 &&
+            mouseScreenY >= rect.top - 35 &&
+            mouseScreenY <= rect.bottom + 35);
+
+        if (isNear) {
           if (rw.color === draggingWire.color) {
             // Correct connection snap!
             playSnapAudio();
@@ -231,7 +230,7 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
               window.dispatchEvent(new CustomEvent("internet-connected"));
               setTimeout(() => {
                 onClose();
-              }, 1400);
+              }, 1100);
             }
           }
           break;
@@ -240,7 +239,6 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
     }
 
     if (!matched) {
-      // Elastic rubber recoil sound
       playRecoilAudio();
     }
 
@@ -255,10 +253,8 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
   const stretchDist = draggingWire
     ? Math.hypot(wireTip.x - draggingWire.startX, wireTip.y - draggingWire.startY)
     : 0;
-  // Thickness thins from 14px down to 7px as tension stretches the rubber
-  const dynamicThickness = Math.max(6.5, 13.5 - (stretchDist / 380) * 6);
-  // Elastic curve sag / tension bow
-  const curveSag = Math.sin(Math.min(Math.PI, (stretchDist / 400) * Math.PI)) * 18;
+  const dynamicThickness = Math.max(7.5, 12 - (stretchDist / 220) * 3);
+  const curveSag = Math.sin(Math.min(Math.PI, (stretchDist / 240) * Math.PI)) * 10;
 
   const content = (
     <div className="wiring-modal-overlay" role="dialog" aria-modal="true">

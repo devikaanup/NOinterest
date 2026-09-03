@@ -1294,10 +1294,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 }
 
 .wiring-panel-wrap {
-  width: 620px;
-  max-width: 96vw;
+  width: 320px; /* Reduced distance between start and end by half */
+  max-width: 94vw;
   background: #475569;
-  border: 6px solid #1e293b;
+  border: 5px solid #1e293b;
   border-radius: 18px;
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.25),
@@ -1310,19 +1310,19 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
   justify-content: space-between;
   align-items: center;
   background: #1e293b;
-  padding: 12px 20px;
+  padding: 10px 14px;
   border-bottom: 4px solid #0f172a;
 }
 
 .wiring-header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .wiring-caution-light {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: #facc15;
   box-shadow: 0 0 10px #facc15;
@@ -1330,9 +1330,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 }
 
 .wiring-task-title {
-  font: 700 13px "Press Start 2P", monospace;
+  font: 700 10px "Press Start 2P", monospace;
   color: #f8fafc;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .wiring-close-btn {
@@ -1347,12 +1347,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(214, 69, 69,
 .wiring-chassis {
   position: relative;
   width: 100%;
-  height: 380px;
+  height: 360px;
   background: #1e293b;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 16px 18px; /* Closer terminals */
   overflow: hidden;
   touch-action: none;
 }
