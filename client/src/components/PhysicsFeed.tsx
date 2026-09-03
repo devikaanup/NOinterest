@@ -70,8 +70,17 @@ export function PinPlaceholder({
           }}
           title="Click to connect to internet"
         >
-          <span className="no-internet-arrow" aria-hidden="true">↑</span>
-          <span className="no-internet-text">Connect to Internet</span>
+          <div className="no-internet-header">
+            <span className="no-internet-icon">📡❌</span>
+            <span className="no-internet-status">OFFLINE</span>
+          </div>
+          <div className="no-internet-arrow-wrap">
+            <span className="no-internet-arrow">⬆</span>
+          </div>
+          <div className="no-internet-badge-btn">
+            CONNECT TO INTERNET
+          </div>
+          <span className="no-internet-click-hint">(click to wire)</span>
         </div>
       ) : (
         <span>{pin.topic}</span>

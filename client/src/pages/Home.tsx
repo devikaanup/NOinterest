@@ -589,7 +589,63 @@ function Dashboard() {
         onEscape={handleEscapeSuccess}
         title="Reach the other side to exit."
       />
+
+      {/* Chaotic Random RAM Booster Widget */}
+      <DownloadMoreRamWidget />
     </div>
+  );
+}
+
+function DownloadMoreRamWidget() {
+  const [downloading, setDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState("FREE 128GB RAM READY TO DOWNLOAD");
+
+  const startDownload = () => {
+    if (downloading) return;
+    setDownloading(true);
+    setProgress(0);
+    setStatus("Allocating synthetic memory...");
+    let p = 0;
+    const interval = setInterval(() => {
+      p += Math.floor(Math.random() * 15) + 9;
+      if (p >= 99) {
+        clearInterval(interval);
+        setProgress(99);
+        setStatus("ERROR 418: RAM leaked into keyboard!");
+        setTimeout(() => {
+          setDownloading(false);
+          setProgress(0);
+          setStatus("FREE 128GB RAM READY TO DOWNLOAD");
+        }, 3200);
+      } else {
+        setProgress(p);
+        if (p > 50) setStatus("Overclocking browser fans...");
+      }
+    }, 240);
+  };
+
+  return (
+    <aside className="ram-booster-widget" aria-label="Ram booster">
+      <div className="ram-header">
+        <span>⚡ RAM BOOSTER 9000</span>
+        <span className="ram-tag">HOT!</span>
+      </div>
+      <p className="ram-status">{status}</p>
+      {downloading && (
+        <div className="ram-progress-track">
+          <div className="ram-progress-bar" style={{ width: `${progress}%` }} />
+        </div>
+      )}
+      <button
+        type="button"
+        className="ram-download-btn"
+        onClick={startDownload}
+        disabled={downloading}
+      >
+        {downloading ? `DOWNLOADING... ${progress}%` : "⬇ DOWNLOAD 128GB RAM"}
+      </button>
+    </aside>
   );
 }
 

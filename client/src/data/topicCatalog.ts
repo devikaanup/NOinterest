@@ -457,6 +457,48 @@ export const TOPIC_CATALOG: Record<string, TopicDef> = {
         description: "Gears within gears turning for reasons no living person can fully explain.",
         author: "chronos_engineer",
         saves: 510,
+      },
+      {
+        title: "Random Idea: Waterproof Sponge",
+        imageUrl: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=400&q=80",
+        description: "Repels 100% of moisture to ensure dishes remain thoroughly unwashed.",
+        author: "hygiene_disruptor",
+        saves: 720,
+      },
+      {
+        title: "Random Concept: 3 AM Ceiling Stare",
+        imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        description: "Replaying that awkward interaction from sophomore year of high school on repeat.",
+        author: "insomnia_club",
+        saves: 940,
+      },
+      {
+        title: "Random Idea: Silent Alarm Clock",
+        imageUrl: "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?auto=format&fit=crop&w=400&q=80",
+        description: "Politely whispers into the void so you sleep through every meeting peacefully.",
+        author: "chronically_late",
+        saves: 830,
+      },
+      {
+        title: "Random Concept: The Tangled Earphone Singularity",
+        imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
+        description: "Pocket physics creating 8-dimensional topological knots in under 4 seconds.",
+        author: "quantum_pocket",
+        saves: 890,
+      },
+      {
+        title: "Random Idea: Inflatable Dartboard",
+        imageUrl: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=400&q=80",
+        description: "Single-use excitement guaranteed on the very first accurate throw.",
+        author: "safety_first_not",
+        saves: 610,
+      },
+      {
+        title: "Random Concept: Lukewarm Microwave Mystery",
+        imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80",
+        description: "The bowl is 4,000 degrees Kelvin, but the center of the burrito is solid permafrost.",
+        author: "culinary_physicist",
+        saves: 980,
       }
     ]
   }
