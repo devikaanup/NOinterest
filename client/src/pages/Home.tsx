@@ -446,7 +446,13 @@ function Dashboard() {
         <div className="interest-logo">NO<span>interest</span><sup>™</sup></div>
         <form className="interest-search" onSubmit={openRoulette}>
           <span>⌕</span>
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search for something..." />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            onKeyDown={(e) => handleInvertedKeyDown(e, setSearch)}
+            onPaste={(e) => handleInvertedPaste(e, setSearch)}
+            placeholder="Search for something..."
+          />
           <kbd>↵</kbd>
         </form>
         <div className="troll-toolbar">
@@ -580,6 +586,55 @@ const invertAtbashString = (str: string): string => {
   return str.split("").map(invertAtbashChar).join("");
 };
 
+const handleInvertedKeyDown = (
+  e: React.KeyboardEvent<HTMLInputElement>,
+  setter: React.Dispatch<React.SetStateAction<string>>,
+  onEnter?: () => void,
+  onClearMessage?: () => void
+) => {
+  if (e.key === "Enter" && onEnter) {
+    e.preventDefault();
+    onEnter();
+    return;
+  }
+  if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const inverted = invertAtbashChar(e.key);
+    if (inverted !== e.key) {
+      e.preventDefault();
+      const input = e.currentTarget;
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? input.value.length;
+      const val = input.value;
+      const nextVal = val.slice(0, start) + inverted + val.slice(end);
+      setter(nextVal);
+      onClearMessage?.();
+      requestAnimationFrame(() => {
+        input.setSelectionRange(start + 1, start + 1);
+      });
+    }
+  }
+};
+
+const handleInvertedPaste = (
+  e: React.ClipboardEvent<HTMLInputElement>,
+  setter: React.Dispatch<React.SetStateAction<string>>,
+  onClearMessage?: () => void
+) => {
+  e.preventDefault();
+  const text = e.clipboardData.getData("text");
+  const inverted = invertAtbashString(text);
+  const input = e.currentTarget;
+  const start = input.selectionStart ?? input.value.length;
+  const end = input.selectionEnd ?? input.value.length;
+  const val = input.value;
+  const nextVal = val.slice(0, start) + inverted + val.slice(end);
+  setter(nextVal);
+  onClearMessage?.();
+  requestAnimationFrame(() => {
+    input.setSelectionRange(start + inverted.length, start + inverted.length);
+  });
+};
+
 const RGB_CYCLE_COLORS = [
   "#ff2a5f", // neon pink
   "#00d2ff", // electric cyan
@@ -618,47 +673,7 @@ export default function Home() {
     return () => window.clearInterval(timer);
   }, []);
 
-  // Inverted keyboard: a->z, b->y, etc.
-  const handleInvertedKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    setter: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      const inverted = invertAtbashChar(e.key);
-      if (inverted !== e.key) {
-        e.preventDefault();
-        const input = e.currentTarget;
-        const start = input.selectionStart ?? input.value.length;
-        const end = input.selectionEnd ?? input.value.length;
-        const val = input.value;
-        const nextVal = val.slice(0, start) + inverted + val.slice(end);
-        setter(nextVal);
-        setFormMessage("");
-        requestAnimationFrame(() => {
-          input.setSelectionRange(start + 1, start + 1);
-        });
-      }
-    }
-  };
 
-  const handleInvertedPaste = (
-    e: React.ClipboardEvent<HTMLInputElement>,
-    setter: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    e.preventDefault();
-    const text = e.clipboardData.getData("text");
-    const inverted = invertAtbashString(text);
-    const input = e.currentTarget;
-    const start = input.selectionStart ?? input.value.length;
-    const end = input.selectionEnd ?? input.value.length;
-    const val = input.value;
-    const nextVal = val.slice(0, start) + inverted + val.slice(end);
-    setter(nextVal);
-    setFormMessage("");
-    requestAnimationFrame(() => {
-      input.setSelectionRange(start + inverted.length, start + inverted.length);
-    });
-  };
 
   const triggerDino = useCallback(() => {
     if (completeRef.current) return;
@@ -795,7 +810,7 @@ export default function Home() {
               {verified
                 ? signInText.trim().toLowerCase() === "sign in"
                   ? "Phrase matched. Press Enter or click to proceed."
-                  : "Type 'sign in' to sign in."
+                  : "Type 'sign in' to sign in (keyboard inverted: a ↔ z, b ↔ y)."
                 : "Complete the gauntlet to continue."}
             </div>
             <div className="sign-in-action-cluster">
@@ -806,14 +821,10 @@ export default function Home() {
                   setSignInText(e.target.value);
                   setFormMessage("");
                 }}
+                onKeyDown={(e) => handleInvertedKeyDown(e, setSignInText, signIn, () => setFormMessage(""))}
+                onPaste={(e) => handleInvertedPaste(e, setSignInText, () => setFormMessage(""))}
                 placeholder='type "sign in"'
                 aria-label='type "sign in"'
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    signIn();
-                  }
-                }}
               />
               <AppButton
                 onClick={signIn}
