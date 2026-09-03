@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import PhysicsFeed, { type Pin, PinPlaceholder, dashboardTone } from "@/components/PhysicsFeed";
 import { EscapeMazeModal } from "@/components/EscapeMazeModal";
 import { WaterPourCaptcha } from "@/components/WaterPourCaptcha";
+import { InvertColorsToggle } from "@/components/InvertColorsToggle";
+import { TurnOffButton } from "@/components/TurnOffModal";
+import { ConnectToInternetButton } from "@/components/WiringTaskModal";
 
 type Tile = {
   id: number;
@@ -570,6 +573,11 @@ function Dashboard() {
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search for something..." />
           <kbd>↵</kbd>
         </form>
+        <div className="troll-toolbar">
+          <InvertColorsToggle />
+          <ConnectToInternetButton />
+          <TurnOffButton />
+        </div>
         <button className="fake-x" onClick={closeFake}>×</button>
       </nav>
       {hasEscaped && (
@@ -899,6 +907,11 @@ export default function Home() {
       <div className="noise-layer" aria-hidden="true" />
       <div className="shell-ornament ornament-left" aria-hidden="true">01 / THE GAUNTLET</div>
       <div className="shell-ornament ornament-right" aria-hidden="true">NO REAL AUTH · NO MERCY</div>
+      <div className="troll-toolbar login-troll-toolbar" style={{ position: "relative", zIndex: 10, marginBottom: "16px" }}>
+        <InvertColorsToggle />
+        <ConnectToInternetButton />
+        <TurnOffButton />
+      </div>
       <section className="card-wrap" style={{ transform: `translate3d(${jitter.x}px, ${jitter.y}px, 0) rotate(${jitter.rotate}deg)` }}>
         <div className="topline">
           <div className="mark"><span className="mark-dot" /> TG / 001</div>

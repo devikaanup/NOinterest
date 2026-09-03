@@ -335,11 +335,15 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
     checkSuccessCondition();
   };
 
-  // Glass Tumbler Geometry
-  const glassHeight = 150;
-  const glassWidth = 90;
-  const currentHeightPx = (waterLevel / 100) * glassHeight;
-  const waterTopY = glassHeight - currentHeightPx;
+  // Irregular Geometric Glass Geometry (matching user diagram)
+  const glassHeight = 155;
+  const glassWidth = 140;
+  const baseY = 146;
+  const topY = 14;
+  const hTotal = baseY - topY; // 132px fillable height
+
+  const currentHeightPx = (waterLevel / 100) * hTotal;
+  const waterTopY = baseY - currentHeightPx;
 
   const waveAmplitude = isPouring ? 3.5 : (waterLevel > 0 ? 1.5 : 0);
   const waveY1 = waterTopY + Math.sin(wavePhase) * waveAmplitude;
@@ -347,7 +351,7 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
 
   const waterPath = `
     M 0,${waveY1}
-    Q ${glassWidth * 0.25},${waveY1 - waveAmplitude * 1.2} ${glassWidth * 0.5},${(waveY1 + waveY2) / 2}
+    Q 35,${waveY1 - waveAmplitude * 1.2} 70,${(waveY1 + waveY2) / 2}
     T ${glassWidth},${waveY2}
     L ${glassWidth},${glassHeight}
     L 0,${glassHeight}
@@ -355,8 +359,10 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
   `;
 
   // Target line coordinates
-  const targetY = glassHeight - (targetLevel / 100) * glassHeight;
-  const targetToleranceHeight = (9 / 100) * glassHeight; // ±4.5%
+  const targetY = baseY - (targetLevel / 100) * hTotal;
+  const targetToleranceHeight = (9 / 100) * hTotal; // ±4.5%
+
+  const polygonPoints = "52,14 74,14 80,48 132,48 132,144 94,132 58,146 44,98 16,116 12,56";
 
   return (
     <div className="water-pour-widget" onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
@@ -427,7 +433,7 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
           )}
         </div>
 
-        {/* Glass / Tumbler Graphic */}
+        {/* Irregular Geometric Glass Graphic */}
         <div className={`glass-container ${isSuccess ? "glass-success" : ""} ${isSpilling ? "glass-spill" : ""}`}>
           <svg className="glass-svg" viewBox={`0 0 ${glassWidth} ${glassHeight}`} width={glassWidth} height={glassHeight}>
             <defs>
@@ -437,63 +443,65 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
                 <stop offset="100%" stopColor="#0284c7" />
               </linearGradient>
 
-              {/* Clip path to constrain water inside glass shape */}
-              <clipPath id="glassInnerClip">
-                <path d={`M 6,4 L ${glassWidth - 6},4 L ${glassWidth - 10},${glassHeight - 8} C ${glassWidth - 10},${glassHeight - 2} 10,${glassHeight - 2} 10,${glassHeight - 8} Z`} />
+              {/* Clip path for irregular geometric glass */}
+              <clipPath id="irregularGlassClip">
+                <polygon points={polygonPoints} />
               </clipPath>
             </defs>
 
-            {/* Target Tolerance Sweet-Spot Band */}
+            {/* Target Tolerance Zone Band */}
             <rect
-              x="6"
+              x="0"
               y={targetY - targetToleranceHeight / 2}
-              width={glassWidth - 12}
+              width={glassWidth}
               height={targetToleranceHeight}
-              fill="rgba(245, 158, 11, 0.18)"
-              rx="2"
+              fill="rgba(245, 158, 11, 0.2)"
+              clipPath="url(#irregularGlassClip)"
             />
 
             {/* Liquid Fill with animated wave */}
             {waterLevel > 0 && (
-              <g clipPath="url(#glassInnerClip)">
+              <g clipPath="url(#irregularGlassClip)">
                 <path d={waterPath} fill="url(#liquidGrad)" />
                 {/* Surface highlight */}
                 <path
-                  d={`M 6,${waveY1} Q ${glassWidth * 0.5},${(waveY1 + waveY2) / 2} ${glassWidth - 6},${waveY2}`}
+                  d={`M 0,${waveY1} Q ${glassWidth * 0.5},${(waveY1 + waveY2) / 2} ${glassWidth},${waveY2}`}
                   stroke="#e0f2fe"
-                  strokeWidth="2"
+                  strokeWidth="2.5"
                   fill="none"
                 />
               </g>
             )}
 
-            {/* Target Line */}
+            {/* Target Line - Clipped inside the glass */}
             <line
-              x1="4"
+              x1="0"
               y1={targetY}
-              x2={glassWidth - 4}
+              x2={glassWidth}
               y2={targetY}
               stroke="#ea580c"
               strokeWidth="2.5"
               strokeDasharray="4 2"
+              clipPath="url(#irregularGlassClip)"
             />
 
-            {/* Target Marker Label */}
-            <g transform={`translate(${glassWidth - 2}, ${targetY})`}>
+            {/* Target Marker Label Arrow on the right edge */}
+            <g transform={`translate(${glassWidth - 4}, ${targetY})`}>
               <polygon points="0,0 6,-4 6,4" fill="#ea580c" />
             </g>
 
-            {/* Glass Outline / Walls */}
-            <path
-              d={`M 4,2 L 4,${glassHeight - 10} C 4,${glassHeight} ${glassWidth - 4},${glassHeight} ${glassWidth - 4},${glassHeight - 10} L ${glassWidth - 4},2`}
+            {/* Irregular Geometric Glass Outline */}
+            <polygon
+              points={polygonPoints}
               fill="none"
               stroke="#0f172a"
               strokeWidth="4"
+              strokeLinejoin="round"
               strokeLinecap="round"
             />
 
-            {/* Rim Highlight */}
-            <ellipse cx={glassWidth / 2} cy="4" rx={glassWidth / 2 - 4} ry="3" fill="none" stroke="#64748b" strokeWidth="1.5" />
+            {/* Top Rim Lip */}
+            <line x1="50" y1="14" x2="76" y2="14" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
 
           {/* Splash Overflows on Spill */}
