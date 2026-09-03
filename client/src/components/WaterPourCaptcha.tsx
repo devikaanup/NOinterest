@@ -335,27 +335,11 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
     checkSuccessCondition();
   };
 
-  // Triangle Flask Geometry: Base Down (wide base at bottom, narrow rim at top)
+  // Glass Tumbler Geometry
   const glassHeight = 150;
-  const glassWidth = 120;
-  const baseY = 144;
-  const topY = 8;
-  const hTotal = baseY - topY; // 136px height
-
-  // Calculate left and right wall coordinates at any Y
-  const getTriangleXLeft = (y: number) => {
-    const t = Math.max(0, Math.min(1, (baseY - y) / hTotal));
-    return 12 + t * (46 - 12);
-  };
-  const getTriangleXRight = (y: number) => {
-    const t = Math.max(0, Math.min(1, (baseY - y) / hTotal));
-    return 108 - t * (108 - 74);
-  };
-
-  const currentHeightPx = (waterLevel / 100) * hTotal;
-  const waterTopY = baseY - currentHeightPx;
-  const waterXLeft = getTriangleXLeft(waterTopY);
-  const waterXRight = getTriangleXRight(waterTopY);
+  const glassWidth = 90;
+  const currentHeightPx = (waterLevel / 100) * glassHeight;
+  const waterTopY = glassHeight - currentHeightPx;
 
   const waveAmplitude = isPouring ? 3.5 : (waterLevel > 0 ? 1.5 : 0);
   const waveY1 = waterTopY + Math.sin(wavePhase) * waveAmplitude;
@@ -363,7 +347,7 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
 
   const waterPath = `
     M 0,${waveY1}
-    Q 30,${waveY1 - waveAmplitude * 1.2} 60,${(waveY1 + waveY2) / 2}
+    Q ${glassWidth * 0.25},${waveY1 - waveAmplitude * 1.2} ${glassWidth * 0.5},${(waveY1 + waveY2) / 2}
     T ${glassWidth},${waveY2}
     L ${glassWidth},${glassHeight}
     L 0,${glassHeight}
@@ -371,19 +355,8 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
   `;
 
   // Target line coordinates
-  const targetY = baseY - (targetLevel / 100) * hTotal;
-  const targetXLeft = getTriangleXLeft(targetY);
-  const targetXRight = getTriangleXRight(targetY);
-
-  // Target tolerance zone polygon matching sloped walls
-  const toleranceHalf = (4.5 / 100) * hTotal;
-  const tolTopY = targetY - toleranceHalf;
-  const tolBotY = targetY + toleranceHalf;
-  const tolTopLeft = getTriangleXLeft(tolTopY);
-  const tolTopRight = getTriangleXRight(tolTopY);
-  const tolBotLeft = getTriangleXLeft(tolBotY);
-  const tolBotRight = getTriangleXRight(tolBotY);
-  const tolerancePolyPoints = `${tolTopLeft},${tolTopY} ${tolTopRight},${tolTopY} ${tolBotRight},${tolBotY} ${tolBotLeft},${tolBotY}`;
+  const targetY = glassHeight - (targetLevel / 100) * glassHeight;
+  const targetToleranceHeight = (9 / 100) * glassHeight; // ±4.5%
 
   return (
     <div className="water-pour-widget" onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
@@ -454,7 +427,7 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
           )}
         </div>
 
-        {/* Triangle Glass / Flask Graphic - Base Down */}
+        {/* Glass / Tumbler Graphic */}
         <div className={`glass-container ${isSuccess ? "glass-success" : ""} ${isSpilling ? "glass-spill" : ""}`}>
           <svg className="glass-svg" viewBox={`0 0 ${glassWidth} ${glassHeight}`} width={glassWidth} height={glassHeight}>
             <defs>
@@ -464,27 +437,31 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
                 <stop offset="100%" stopColor="#0284c7" />
               </linearGradient>
 
-              {/* Triangle Base-Down Clip Path */}
-              <clipPath id="triangleInnerClip">
-                <polygon points="46,8 74,8 107,144 13,144" />
+              {/* Clip path to constrain water inside glass shape */}
+              <clipPath id="glassInnerClip">
+                <path d={`M 6,4 L ${glassWidth - 6},4 L ${glassWidth - 10},${glassHeight - 8} C ${glassWidth - 10},${glassHeight - 2} 10,${glassHeight - 2} 10,${glassHeight - 8} Z`} />
               </clipPath>
             </defs>
 
-            {/* Target Tolerance Zone (Shaded sloped trapezoid) */}
-            <polygon
-              points={tolerancePolyPoints}
-              fill="rgba(245, 158, 11, 0.2)"
+            {/* Target Tolerance Sweet-Spot Band */}
+            <rect
+              x="6"
+              y={targetY - targetToleranceHeight / 2}
+              width={glassWidth - 12}
+              height={targetToleranceHeight}
+              fill="rgba(245, 158, 11, 0.18)"
+              rx="2"
             />
 
             {/* Liquid Fill with animated wave */}
             {waterLevel > 0 && (
-              <g clipPath="url(#triangleInnerClip)">
+              <g clipPath="url(#glassInnerClip)">
                 <path d={waterPath} fill="url(#liquidGrad)" />
-                {/* Surface highlight wave */}
+                {/* Surface highlight */}
                 <path
-                  d={`M ${waterXLeft},${waveY1} Q 60,${(waveY1 + waveY2) / 2} ${waterXRight},${waveY2}`}
+                  d={`M 6,${waveY1} Q ${glassWidth * 0.5},${(waveY1 + waveY2) / 2} ${glassWidth - 6},${waveY2}`}
                   stroke="#e0f2fe"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                   fill="none"
                 />
               </g>
@@ -492,32 +469,31 @@ export const WaterPourCaptcha: React.FC<WaterPourCaptchaProps> = ({ onSuccess, d
 
             {/* Target Line */}
             <line
-              x1={targetXLeft - 2}
+              x1="4"
               y1={targetY}
-              x2={targetXRight + 2}
+              x2={glassWidth - 4}
               y2={targetY}
               stroke="#ea580c"
               strokeWidth="2.5"
               strokeDasharray="4 2"
             />
 
-            {/* Target Marker Arrow */}
-            <g transform={`translate(${targetXRight + 4}, ${targetY})`}>
+            {/* Target Marker Label */}
+            <g transform={`translate(${glassWidth - 2}, ${targetY})`}>
               <polygon points="0,0 6,-4 6,4" fill="#ea580c" />
             </g>
 
-            {/* Triangle Flask Outline - Base Down */}
+            {/* Glass Outline / Walls */}
             <path
-              d="M 46,8 L 12,143 Q 11,146 15,146 L 105,146 Q 109,146 108,143 L 74,8"
+              d={`M 4,2 L 4,${glassHeight - 10} C 4,${glassHeight} ${glassWidth - 4},${glassHeight} ${glassWidth - 4},${glassHeight - 10} L ${glassWidth - 4},2`}
               fill="none"
               stroke="#0f172a"
               strokeWidth="4"
               strokeLinecap="round"
-              strokeLinejoin="round"
             />
 
-            {/* Top Rim Opening */}
-            <ellipse cx="60" cy="8" rx="14" ry="4" fill="none" stroke="#64748b" strokeWidth="2" />
+            {/* Rim Highlight */}
+            <ellipse cx={glassWidth / 2} cy="4" rx={glassWidth / 2 - 4} ry="3" fill="none" stroke="#64748b" strokeWidth="1.5" />
           </svg>
 
           {/* Splash Overflows on Spill */}
