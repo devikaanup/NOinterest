@@ -28,13 +28,19 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
   const [leftWires, setLeftWires] = useState<WireNode[]>([]);
   const [rightWires, setRightWires] = useState<WireNode[]>([]);
   const [connections, setConnections] = useState<Record<string, string>>({}); // leftColor -> rightColor
-  const [draggingWire, setDraggingWire] = useState<{ color: string; startY: number } | null>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [draggingWire, setDraggingWire] = useState<{ color: string; startX: number; startY: number } | null>(null);
+  const [wireTip, setWireTip] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const leftRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const rightRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Elastic drag physics simulation refs
+  const mouseTargetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const tipPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const tipVelRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const springAnimRef = useRef<number | null>(null);
 
   // Reset and scramble wires whenever modal opens
   useEffect(() => {
@@ -49,7 +55,7 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
     }
   }, [isOpen]);
 
-  // Play simple Web Audio click / snap
+  // Audio effects
   const playSnapAudio = useCallback(() => {
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -58,13 +64,33 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
       const gain = ctx.createGain();
       osc.type = "sine";
       osc.frequency.setValueAtTime(440, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.09);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.13);
+      osc.stop(ctx.currentTime + 0.11);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const playRecoilAudio = useCallback(() => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.14);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.16);
     } catch {
       /* ignore */
     }
@@ -91,46 +117,106 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
     }
   }, []);
 
-  // Handle Dragging
+  // Elastic spring physics animation loop for dragging
+  useEffect(() => {
+    if (!draggingWire) {
+      if (springAnimRef.current) cancelAnimationFrame(springAnimRef.current);
+      return;
+    }
+
+    const anchorX = draggingWire.startX;
+    const anchorY = draggingWire.startY;
+
+    const simulateElasticWire = () => {
+      const targetX = mouseTargetRef.current.x;
+      const targetY = mouseTargetRef.current.y;
+
+      const currentX = tipPosRef.current.x;
+      const currentY = tipPosRef.current.y;
+
+      // Distance from starting anchor terminal
+      const distFromAnchor = Math.hypot(currentX - anchorX, currentY - anchorY);
+
+      // Strong elastic restorative tension pulling backward toward anchor
+      // Tension factor ramps non-linearly with stretch distance: makes wire heavy and resistant!
+      const tensionMultiplier = 0.065 * Math.pow(1 + distFromAnchor / 140, 1.35);
+      const elasticForceX = (anchorX - currentX) * tensionMultiplier;
+      const elasticForceY = (anchorY - currentY) * tensionMultiplier;
+
+      // Spring pull force toward user's pointer
+      const springPullX = (targetX - currentX) * 0.16;
+      const springPullY = (targetY - currentY) * 0.16;
+
+      // Heavy silicone/rubber damping
+      tipVelRef.current.x = (tipVelRef.current.x + springPullX + elasticForceX) * 0.72;
+      tipVelRef.current.y = (tipVelRef.current.y + springPullY + elasticForceY) * 0.72;
+
+      tipPosRef.current.x += tipVelRef.current.x;
+      tipPosRef.current.y += tipVelRef.current.y;
+
+      setWireTip({ x: tipPosRef.current.x, y: tipPosRef.current.y });
+
+      springAnimRef.current = requestAnimationFrame(simulateElasticWire);
+    };
+
+    springAnimRef.current = requestAnimationFrame(simulateElasticWire);
+
+    return () => {
+      if (springAnimRef.current) cancelAnimationFrame(springAnimRef.current);
+    };
+  }, [draggingWire]);
+
+  // Handle Drag initiation
   const handlePointerDown = (color: string, e: React.PointerEvent) => {
     if (isCompleted || connections[color]) return;
     if (!panelRef.current) return;
-    const rect = panelRef.current.getBoundingClientRect();
-    const relY = e.clientY - rect.top;
-    setDraggingWire({ color, startY: relY });
-    setMousePos({ x: e.clientX - rect.left, y: relY });
+    const leftEl = leftRefs.current[color];
+    if (!leftEl) return;
+
+    const pRect = panelRef.current.getBoundingClientRect();
+    const lRect = leftEl.getBoundingClientRect();
+
+    const startX = lRect.right - pRect.left - 5;
+    const startY = lRect.top + lRect.height / 2 - pRect.top;
+
+    tipPosRef.current = { x: startX, y: startY };
+    tipVelRef.current = { x: 0, y: 0 };
+    mouseTargetRef.current = { x: e.clientX - pRect.left, y: e.clientY - pRect.top };
+
+    setDraggingWire({ color, startX, startY });
+    setWireTip({ x: startX, y: startY });
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!draggingWire || !panelRef.current) return;
     const rect = panelRef.current.getBoundingClientRect();
-    setMousePos({
+    mouseTargetRef.current = {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
-    });
+    };
   };
 
-  const handlePointerUp = (e: React.PointerEvent) => {
+  const handlePointerUp = () => {
     if (!draggingWire || !panelRef.current) return;
 
-    // Check if pointer is over any right-side wire terminal
-    const x = e.clientX;
-    const y = e.clientY;
+    const pRect = panelRef.current.getBoundingClientRect();
+    const tipScreenX = pRect.left + tipPosRef.current.x;
+    const tipScreenY = pRect.top + tipPosRef.current.y;
 
     let matched = false;
     for (const rw of rightWires) {
       const nodeEl = rightRefs.current[rw.color];
       if (nodeEl) {
         const rect = nodeEl.getBoundingClientRect();
-        // Generous target hit box around right contact
+        // Latch test against the REAL elastic wire tip position
         if (
-          x >= rect.left - 20 &&
-          x <= rect.right + 20 &&
-          y >= rect.top - 15 &&
-          y <= rect.bottom + 15
+          tipScreenX >= rect.left - 24 &&
+          tipScreenX <= rect.right + 24 &&
+          tipScreenY >= rect.top - 20 &&
+          tipScreenY <= rect.bottom + 20
         ) {
           if (rw.color === draggingWire.color) {
-            // Correct connection!
+            // Correct connection snap!
             playSnapAudio();
             const nextConns = { ...connections, [draggingWire.color]: rw.color };
             setConnections(nextConns);
@@ -150,6 +236,11 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
       }
     }
 
+    if (!matched) {
+      // Elastic rubber recoil sound
+      playRecoilAudio();
+    }
+
     setDraggingWire(null);
   };
 
@@ -157,10 +248,19 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
 
   const connectedCount = Object.keys(connections).length;
 
+  // Compute dynamic elastic stretch properties
+  const stretchDist = draggingWire
+    ? Math.hypot(wireTip.x - draggingWire.startX, wireTip.y - draggingWire.startY)
+    : 0;
+  // Thickness thins from 14px down to 7px as tension stretches the rubber
+  const dynamicThickness = Math.max(6.5, 13.5 - (stretchDist / 380) * 6);
+  // Elastic curve sag / tension bow
+  const curveSag = Math.sin(Math.min(Math.PI, (stretchDist / 400) * Math.PI)) * 18;
+
   const content = (
     <div className="wiring-modal-overlay" role="dialog" aria-modal="true">
       <div className="wiring-panel-wrap">
-        {/* Among Us Panel Header */}
+        {/* Panel Header */}
         <div className="wiring-panel-header">
           <div className="wiring-header-left">
             <span className="wiring-caution-light" />
@@ -179,22 +279,44 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
           className="wiring-chassis"
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerLeave={() => setDraggingWire(null)}
+          onPointerLeave={handlePointerUp}
         >
-          {/* SVG Overlay for Wires */}
+          {/* SVG Overlay for Elastic Wires */}
           <svg className="wiring-svg-canvas">
-            {/* Draw active dragging wire */}
-            {draggingWire && panelRef.current && (
-              <line
-                x1="45"
-                y1={draggingWire.startY}
-                x2={mousePos.x}
-                y2={mousePos.y}
-                stroke={draggingWire.color}
-                strokeWidth="12"
-                strokeLinecap="round"
-                className="active-drag-wire"
-              />
+            {/* Draw active dragging elastic wire */}
+            {draggingWire && (
+              <g>
+                {/* Elastic wire drop shadow */}
+                <path
+                  d={`M ${draggingWire.startX} ${draggingWire.startY} Q ${(draggingWire.startX + wireTip.x) / 2} ${
+                    (draggingWire.startY + wireTip.y) / 2 + curveSag
+                  } ${wireTip.x} ${wireTip.y}`}
+                  stroke="rgba(0,0,0,0.35)"
+                  strokeWidth={dynamicThickness + 4}
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Elastic rubber cord body */}
+                <path
+                  d={`M ${draggingWire.startX} ${draggingWire.startY} Q ${(draggingWire.startX + wireTip.x) / 2} ${
+                    (draggingWire.startY + wireTip.y) / 2 + curveSag
+                  } ${wireTip.x} ${wireTip.y}`}
+                  stroke={draggingWire.color}
+                  strokeWidth={dynamicThickness}
+                  fill="none"
+                  strokeLinecap="round"
+                  className="active-drag-wire"
+                />
+                {/* Elastic metallic terminal head pulled by tension */}
+                <circle
+                  cx={wireTip.x}
+                  cy={wireTip.y}
+                  r={Math.max(6, dynamicThickness * 0.75)}
+                  fill="#ffffff"
+                  stroke="#0f172a"
+                  strokeWidth="2.5"
+                />
+              </g>
             )}
 
             {/* Draw established connected wires */}
@@ -213,15 +335,23 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
               const y2 = rRect.top + rRect.height / 2 - pRect.top;
 
               return (
-                <path
-                  key={color}
-                  d={`M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1} ${(x1 + x2) / 2} ${y2} ${x2} ${y2}`}
-                  stroke={color}
-                  strokeWidth="12"
-                  fill="none"
-                  strokeLinecap="round"
-                  className="connected-wire"
-                />
+                <g key={color}>
+                  <path
+                    d={`M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1} ${(x1 + x2) / 2} ${y2} ${x2} ${y2}`}
+                    stroke="rgba(0,0,0,0.35)"
+                    strokeWidth="15"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d={`M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1} ${(x1 + x2) / 2} ${y2} ${x2} ${y2}`}
+                    stroke={color}
+                    strokeWidth="11.5"
+                    fill="none"
+                    strokeLinecap="round"
+                    className="connected-wire"
+                  />
+                </g>
               );
             })}
           </svg>
@@ -259,6 +389,7 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
                     rightRefs.current[wire.color] = el;
                   }}
                   className={`wire-terminal terminal-right ${isConnected ? "is-connected" : ""}`}
+                  title={`${wire.name} contact`}
                 >
                   <div className={`terminal-led ${isConnected ? "led-active" : ""}`} />
                   <div className="wire-contact" style={{ backgroundColor: wire.color }} />
@@ -268,9 +399,9 @@ export const WiringTaskModal: React.FC<WiringTaskModalProps> = ({ isOpen, onClos
             })}
           </div>
 
-          {/* Task Complete Toast Banner */}
+          {/* Success Banner */}
           {isCompleted && (
-            <div className="wiring-complete-banner" aria-live="polite">
+            <div className="wiring-complete-banner">
               <span className="banner-icon">⚡</span>
               <span>TASK COMPLETE!</span>
             </div>
@@ -305,3 +436,5 @@ export const ConnectToInternetButton: React.FC<{
     </>
   );
 };
+
+export default WiringTaskModal;
