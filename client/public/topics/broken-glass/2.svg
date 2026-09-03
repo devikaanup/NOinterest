@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+  <rect width="300" height="320" rx="14" fill="#f5f3ff"/>
+  <rect x="8" y="8" width="284" height="304" rx="10" fill="none" stroke="#6d28d9" stroke-width="2.5" stroke-dasharray="6,4"/>
+  
+            <!-- Smartphone with cracked screen -->
+            <rect x="80" y="40" width="140" height="220" rx="18" fill="#18181b" stroke="#3f3f46" stroke-width="6"/>
+            <rect x="90" y="55" width="120" height="190" rx="4" fill="#09090b"/>
+            <!-- Spiderweb cracks from corner -->
+            <path d="M90,55 L160,120 L210,100" stroke="#ffffff" stroke-width="3" fill="none"/>
+            <path d="M160,120 L130,190 L180,245" stroke="#ffffff" stroke-width="2.5" fill="none"/>
+            <path d="M160,120 L195,165" stroke="#ffffff" stroke-width="2" fill="none"/>
+            <path d="M130,190 L95,210" stroke="#ffffff" stroke-width="2" fill="none"/>
+            <text x="150" y="160" font-family="monospace" font-weight="bold" font-size="12" fill="#22c55e" text-anchor="middle">Battery: 100%</text>
+            <text x="150" y="290" font-family="'Comic Sans MS', cursive" font-size="13" fill="#6d28d9" text-anchor="middle">Still works if you squint</text>
+            
+  <text x="150" y="30" font-family="'IBM Plex Mono', monospace" font-weight="bold" font-size="11" fill="#371b69" text-anchor="middle" letter-spacing="1">SPIDERWEB SCREEN</text>
+</svg>

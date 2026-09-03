@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+  <rect width="300" height="320" rx="14" fill="#fefce8"/>
+  <rect x="8" y="8" width="284" height="304" rx="10" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-dasharray="6,4"/>
+  
+            <!-- Modem box with blinking LEDs -->
+            <rect x="60" y="100" width="180" height="90" rx="10" fill="#f1f5f9" stroke="#334155" stroke-width="5"/>
+            <circle cx="85" cy="145" r="7" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+            <circle cx="115" cy="145" r="7" fill="#ef4444" stroke="#dc2626" stroke-width="2"/>
+            <circle cx="145" cy="145" r="7" fill="#eab308" stroke="#ca8a04" stroke-width="2"/>
+            <circle cx="175" cy="145" r="7" fill="#3b82f6" stroke="#2563eb" stroke-width="2"/>
+            <text x="210" y="150" font-family="sans-serif" font-weight="900" font-size="12" fill="#475569">56k</text>
+            <!-- Screaming sound waves -->
+            <path d="M40,70 Q90,30 150,70 T260,70" fill="none" stroke="#ca8a04" stroke-width="4"/>
+            <text x="150" y="55" font-family="'Impact', sans-serif" font-size="20" fill="#eab308" text-anchor="middle">BEEEEEP-SCREEEEECH</text>
+            <text x="150" y="240" font-family="monospace" font-weight="bold" font-size="14" fill="#854d0e" text-anchor="middle">Connecting at 28.8 kbps</text>
+            <text x="150" y="265" font-family="'Comic Sans MS', cursive" font-size="12" fill="#a16207" text-anchor="middle">Don't pick up the phone mom!</text>
+            
+  <text x="150" y="30" font-family="'IBM Plex Mono', monospace" font-weight="bold" font-size="11" fill="#713f12" text-anchor="middle" letter-spacing="1">DIAL-UP TONES</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+  <rect width="300" height="320" rx="14" fill="#ecfdf5"/>
+  <rect x="8" y="8" width="284" height="304" rx="10" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="6,4"/>
+  
+            <!-- Cat face gagging -->
+            <circle cx="150" cy="110" r="50" fill="#cbd5e1" stroke="#1e293b" stroke-width="5"/>
+            <!-- Cat ears -->
+            <polygon points="105,75 120,35 140,65" fill="#cbd5e1" stroke="#1e293b" stroke-width="5"/>
+            <polygon points="195,75 180,35 160,65" fill="#cbd5e1" stroke="#1e293b" stroke-width="5"/>
+            <!-- Wide gagging mouth -->
+            <ellipse cx="150" cy="125" rx="25" ry="18" fill="#1e293b"/>
+            <!-- Spat out hairball with green tint -->
+            <ellipse cx="150" cy="210" rx="35" ry="20" fill="#334155" stroke="#1e293b" stroke-width="4"/>
+            <!-- Little hairs poking out -->
+            <line x1="120" y1="205" x2="105" y2="195" stroke="#1e293b" stroke-width="3"/>
+            <line x1="180" y1="205" x2="195" y2="195" stroke="#1e293b" stroke-width="3"/>
+            <line x1="150" y1="190" x2="150" y2="175" stroke="#1e293b" stroke-width="3"/>
+            <text x="150" y="165" font-family="'Impact', sans-serif" font-size="18" fill="#10b981" text-anchor="middle">HCK-HCK-BLECH!</text>
+            <text x="150" y="260" font-family="'Comic Sans MS', cursive" font-size="13" fill="#047857" text-anchor="middle">Always on the good rug</text>
+            
+  <text x="150" y="30" font-family="'IBM Plex Mono', monospace" font-weight="bold" font-size="11" fill="#064e3b" text-anchor="middle" letter-spacing="1">HAIRBALL</text>
+</svg>

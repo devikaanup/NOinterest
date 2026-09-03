@@ -6,7 +6,7 @@ import { InvertColorsToggle } from "@/components/InvertColorsToggle";
 import { TurnOffButton } from "@/components/TurnOffModal";
 import { ConnectToInternetButton } from "@/components/WiringTaskModal";
 import { LuckCheckModal } from "@/components/LuckCheckModal";
-import { getPlaceholderImage } from "@/utils/getPlaceholderImage";
+import { getPinsForTopic } from "@/data/topicCatalog";
 
 type Tile = {
   id: number;
@@ -347,15 +347,7 @@ function AppButton({
 const TOPICS = ["Random Ideas", "Cats", "Cars", "Food", "Travel", "Fashion", "Architecture", "Nature", "Anime", "Interior Design", "Photography"];
 
 function fetchImagesForTopic(topic: string): Promise<Pin[]> {
-  return Promise.resolve(Array.from({ length: 18 }, (_, index) => ({
-    id: `${topic}-${index}-${Math.random().toString(36).slice(2, 6)}`,
-    title: `Random photo #${index + 1}`,
-    imageUrl: getPlaceholderImage(300, index % 3 === 0 ? 320 : 260, `${topic}-${index}`),
-    topic,
-    description: `A completely legitimate visual thought about ${topic.toLowerCase()}, assembled by a machine with no taste.`,
-    author: ["someone_online", "mystery_guest", "the_algorithm", "you_probably"][index % 4],
-    saveCount: 12 + index * 17,
-  })));
+  return Promise.resolve(getPinsForTopic(topic));
 }
 
 function useDashboardSound() {

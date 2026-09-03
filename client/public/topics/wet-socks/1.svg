@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+  <rect width="300" height="320" rx="14" fill="#e0f2fe"/>
+  <rect x="8" y="8" width="284" height="304" rx="10" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="6,4"/>
+  
+            <!-- Wet sock with puddle -->
+            <path d="M70,70 L110,70 C120,70 125,85 125,120 L125,170 C125,200 150,220 200,220 C230,220 240,200 230,175 C215,140 180,140 180,120 L180,70 Z" fill="#94a3b8" stroke="#1e293b" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M125,170 C140,210 180,210 220,185" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
+            <!-- Water drops -->
+            <path d="M160,240 C160,255 145,255 145,240 C145,230 160,215 160,215 C160,215 175,230 175,240 C175,255 160,255 160,240 Z" fill="#38bdf8"/>
+            <path d="M195,245 C195,255 185,255 185,245 C185,238 195,225 195,225 C195,225 205,238 205,245 C205,255 195,255 195,245 Z" fill="#0284c7"/>
+            <!-- Squish puddle -->
+            <ellipse cx="150" cy="270" rx="110" ry="18" fill="rgba(56, 189, 248, 0.45)" stroke="#0284c7" stroke-width="4"/>
+            <text x="150" y="275" font-family="'Comic Sans MS', sans-serif" font-weight="bold" font-size="14" fill="#0369a1" text-anchor="middle">*SQUISH*</text>
+            
+  <text x="150" y="30" font-family="'IBM Plex Mono', monospace" font-weight="bold" font-size="11" fill="#0369a1" text-anchor="middle" letter-spacing="1">WET SOCKS</text>
+</svg>

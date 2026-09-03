@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+  <rect width="300" height="320" rx="14" fill="#fef3c7"/>
+  <rect x="8" y="8" width="284" height="304" rx="10" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="6,4"/>
+  
+            <!-- Soup Bowl -->
+            <ellipse cx="150" cy="180" rx="110" ry="45" fill="#f8fafc" stroke="#1e293b" stroke-width="6"/>
+            <!-- Cold congealed liquid -->
+            <ellipse cx="150" cy="175" rx="95" ry="35" fill="#f59e0b"/>
+            <!-- Film of cold fat -->
+            <path d="M75,170 Q120,150 160,175 T230,170" fill="none" stroke="#fef3c7" stroke-width="8"/>
+            <!-- Iceberg floating in soup -->
+            <polygon points="125,170 145,130 170,170" fill="#bae6fd" stroke="#0284c7" stroke-width="3"/>
+            <!-- Spoon standing upright frozen -->
+            <path d="M175,90 L185,165" stroke="#94a3b8" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="172" cy="85" r="14" fill="#94a3b8" stroke="#475569" stroke-width="3"/>
+            <text x="150" y="260" font-family="'Comic Sans MS', cursive" font-weight="bold" font-size="15" fill="#b45309" text-anchor="middle">Thermometer: -3°C</text>
+            
+  <text x="150" y="30" font-family="'IBM Plex Mono', monospace" font-weight="bold" font-size="11" fill="#78350f" text-anchor="middle" letter-spacing="1">COLD SOUP</text>
+</svg>

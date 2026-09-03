@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+  <rect width="300" height="320" rx="14" fill="#f0f9ff"/>
+  <rect x="8" y="8" width="284" height="304" rx="10" fill="none" stroke="#0369a1" stroke-width="2.5" stroke-dasharray="6,4"/>
+  
+            <!-- Two sad hanging socks -->
+            <line x1="30" y1="40" x2="270" y2="40" stroke="#64748b" stroke-width="4"/>
+            <rect x="75" y="32" width="10" height="18" fill="#e2e8f0" stroke="#1e293b" stroke-width="3"/>
+            <rect x="195" y="32" width="10" height="18" fill="#e2e8f0" stroke="#1e293b" stroke-width="3"/>
+            <path d="M80,45 L80,140 C80,165 100,180 140,180 C155,180 160,165 155,150 C145,130 120,130 120,100 L120,45" fill="#cbd5e1" stroke="#1e293b" stroke-width="5"/>
+            <path d="M200,45 L200,140 C200,165 220,180 260,180 C275,180 280,165 275,150 C265,130 240,130 240,100 L240,45" fill="#cbd5e1" stroke="#1e293b" stroke-width="5"/>
+            <!-- Sad faces on socks -->
+            <circle cx="95" cy="80" r="3" fill="#0f172a"/><circle cx="107" cy="80" r="3" fill="#0f172a"/>
+            <path d="M96,95 Q101,88 106,95" fill="none" stroke="#0f172a" stroke-width="2"/>
+            <circle cx="215" cy="80" r="3" fill="#0f172a"/><circle cx="227" cy="80" r="3" fill="#0f172a"/>
+            <path d="M216,95 Q221,88 226,95" fill="none" stroke="#0f172a" stroke-width="2"/>
+            <text x="150" y="240" font-family="'Comic Sans MS', sans-serif" font-size="16" font-weight="bold" fill="#0284c7" text-anchor="middle">DRIP... DRIP...</text>
+            
+  <text x="150" y="30" font-family="'IBM Plex Mono', monospace" font-weight="bold" font-size="11" fill="#075985" text-anchor="middle" letter-spacing="1">DAMP WOOL</text>
+</svg>
