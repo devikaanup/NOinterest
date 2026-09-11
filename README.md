@@ -1,7 +1,6 @@
 # NOinterest
 
-> **The most hostile, anti-user Pinterest clone on the web.**  
-> *Things you didn’t ask for. No real auth. No mercy.*
+> **The most chaotic, anti-user Pinterest clone on the web.** 
 
 [![React 19](https://img.shields.io/badge/React-19.2-61dafb?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
