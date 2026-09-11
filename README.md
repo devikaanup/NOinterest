@@ -16,7 +16,7 @@
 
 ---
 
-🔗 **Live Demo:** [https://promptwars-tau-lac.vercel.app/](https://nointerest.vercel.app/)
+🔗 **Live Demo:** [https://nointerest.vercel.app/](https://nointerest.vercel.app/)
 
 ---
 
