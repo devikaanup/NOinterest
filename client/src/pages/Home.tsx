@@ -817,10 +817,6 @@ export default function Home() {
 
       {isChaos && <Dino />}
       <section className="card-wrap" style={{ transform: `translate3d(${jitter.x}px, ${jitter.y}px, 0) rotate(${jitter.rotate}deg)` }}>
-        <div className="topline">
-          <div className="mark"><span className="mark-dot" /> NI / 001</div>
-          <div className="topline-note">A sign-in experience</div>
-        </div>
         <div className="hero-copy">
           <span className="eyebrow">WELCOME, PROBABLY</span>
           <h1>Sign in to continue<span className="period">.</span></h1>
