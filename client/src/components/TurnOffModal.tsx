@@ -8,9 +8,11 @@ interface TurnOffModalProps {
 }
 
 type ModalPhase = "INITIAL_MATH" | "COUNTDOWN" | "EASY_MATH" | "TROLL_REVEAL" | "SHUTDOWN_SUCCESS";
+type AuthSource = "ARITHMETIC" | "STRING_CONCAT";
 
 export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose, onShutdown }) => {
   const [phase, setPhase] = useState<ModalPhase>("INITIAL_MATH");
+  const [authSource, setAuthSource] = useState<AuthSource>("ARITHMETIC");
   const [initialInput, setInitialInput] = useState<string>("");
   const [initialError, setInitialError] = useState<string>("");
   const [secondsLeft, setSecondsLeft] = useState<number>(60);
@@ -21,6 +23,7 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose, onS
     if (!isOpen) {
       // Reset state when closed
       setPhase("INITIAL_MATH");
+      setAuthSource("ARITHMETIC");
       setInitialInput("");
       setInitialError("");
       setSecondsLeft(60);
@@ -55,6 +58,7 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose, onS
     const val = initialInput.trim();
     // 47 * 8 - 12 = 364
     if (val === "364") {
+      setAuthSource("ARITHMETIC");
       setPhase("SHUTDOWN_SUCCESS");
       return;
     }
@@ -72,6 +76,7 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose, onS
 
     // If the user inputs 11, they correctly solved the string concatenation riddle
     if (val === "11") {
+      setAuthSource("STRING_CONCAT");
       setPhase("SHUTDOWN_SUCCESS");
       return;
     }
@@ -218,13 +223,30 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose, onS
               ✓ SHUTDOWN AUTHORIZED
             </div>
             <p className="troll-mock-text" style={{ fontWeight: 600 }}>
-              Security Clearance Granted
+              {authSource === "ARITHMETIC"
+                ? "Security Checksum Verified"
+                : "Security Clearance Granted"}
             </p>
             <div className="troll-code-block">
-              <div className="troll-code-line" style={{ color: "#a8ff00" }}>
-                <span className="code-str">&quot;1&quot;</span> + <span className="code-str">&quot;1&quot;</span> === <span className="code-res">&quot;11&quot;</span>
-              </div>
-              <div className="troll-code-comment">// String concatenation verified. Initiating power down...</div>
+              {authSource === "ARITHMETIC" ? (
+                <>
+                  <div className="troll-code-line" style={{ color: "#a8ff00" }}>
+                    47 * 8 - 12 === <span className="code-res">364</span>
+                  </div>
+                  <div className="troll-code-comment">
+                    // Arithmetic equation verified. Power down sequence authorized.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="troll-code-line" style={{ color: "#a8ff00" }}>
+                    <span className="code-str">&quot;1&quot;</span> + <span className="code-str">&quot;1&quot;</span> === <span className="code-res">&quot;11&quot;</span>
+                  </div>
+                  <div className="troll-code-comment">
+                    // String concatenation verified. Initiating power down...
+                  </div>
+                </>
+              )}
             </div>
             <p className="troll-mock-sub">
               Subsystems closing. You will be logged out and returned to the outside terminal.
