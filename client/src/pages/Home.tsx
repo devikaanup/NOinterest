@@ -816,8 +816,6 @@ export default function Home() {
       <div className="grain" aria-hidden="true" />
 
       {isChaos && <Dino />}
-      <div className="shell-ornament ornament-left" aria-hidden="true">01 / NOINTEREST</div>
-      <div className="shell-ornament ornament-right" aria-hidden="true">NO REAL AUTH · NO MERCY</div>
       <section className="card-wrap" style={{ transform: `translate3d(${jitter.x}px, ${jitter.y}px, 0) rotate(${jitter.rotate}deg)` }}>
         <div className="topline">
           <div className="mark"><span className="mark-dot" /> NI / 001</div>
@@ -924,7 +922,6 @@ export default function Home() {
         </div>
 
         <div className="card-footer">
-          <span>© 2026 NOinterest</span>
           <span>There is no help desk.</span>
         </div>
       </section>
