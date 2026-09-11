@@ -4,11 +4,12 @@ import { createPortal } from "react-dom";
 interface TurnOffModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onShutdown?: () => void;
 }
 
-type ModalPhase = "INITIAL_MATH" | "COUNTDOWN" | "EASY_MATH" | "TROLL_REVEAL";
+type ModalPhase = "INITIAL_MATH" | "COUNTDOWN" | "EASY_MATH" | "TROLL_REVEAL" | "SHUTDOWN_SUCCESS";
 
-export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose }) => {
+export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose, onShutdown }) => {
   const [phase, setPhase] = useState<ModalPhase>("INITIAL_MATH");
   const [initialInput, setInitialInput] = useState<string>("");
   const [initialError, setInitialError] = useState<string>("");
@@ -51,6 +52,12 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose }) =
 
   const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const val = initialInput.trim();
+    // 47 * 8 - 12 = 364
+    if (val === "364") {
+      setPhase("SHUTDOWN_SUCCESS");
+      return;
+    }
     setInitialError("Incorrect security checksum. Please recalculate or give up.");
   };
 
@@ -61,11 +68,28 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose }) =
 
   const handleEasySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPhase("TROLL_REVEAL");
+    const val = easyInput.trim().replace(/^["']|["']$/g, "");
 
-    // Apply severe contrast shift to the entire document
+    // If the user inputs 11, they correctly solved the string concatenation riddle
+    if (val === "11") {
+      setPhase("SHUTDOWN_SUCCESS");
+      return;
+    }
+
+    // Otherwise, mock arithmetic addition assumption and apply contrast punishment
+    setPhase("TROLL_REVEAL");
     const currentFilter = document.documentElement.style.filter || "";
     document.documentElement.style.filter = `${currentFilter} contrast(200%) saturate(1.8)`.trim();
+  };
+
+  const handleExecuteShutdown = () => {
+    // Clear any contrast/filter damage
+    document.documentElement.style.filter = "";
+    onClose();
+    if (onShutdown) {
+      onShutdown();
+    }
+    window.dispatchEvent(new CustomEvent("system-shutdown"));
   };
 
   const content = (
@@ -177,6 +201,44 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose }) =
             </button>
           </div>
         )}
+
+        {phase === "SHUTDOWN_SUCCESS" && (
+          <div className="troll-modal-body troll-reveal-body">
+            <div
+              style={{
+                background: "#064e3b",
+                border: "1px solid #10b981",
+                color: "#6ee7b7",
+                font: "700 13px 'IBM Plex Mono', monospace",
+                padding: "6px 14px",
+                borderRadius: "9999px",
+                letterSpacing: "0.08em",
+              }}
+            >
+              ✓ SHUTDOWN AUTHORIZED
+            </div>
+            <p className="troll-mock-text" style={{ fontWeight: 600 }}>
+              Security Clearance Granted
+            </p>
+            <div className="troll-code-block">
+              <div className="troll-code-line" style={{ color: "#a8ff00" }}>
+                <span className="code-str">&quot;1&quot;</span> + <span className="code-str">&quot;1&quot;</span> === <span className="code-res">&quot;11&quot;</span>
+              </div>
+              <div className="troll-code-comment">// String concatenation verified. Initiating power down...</div>
+            </div>
+            <p className="troll-mock-sub">
+              Subsystems closing. You will be logged out and returned to the outside terminal.
+            </p>
+            <button
+              type="button"
+              className="troll-confirm-btn full-width"
+              style={{ background: "#10b981", color: "#000", fontWeight: 700 }}
+              onClick={handleExecuteShutdown}
+            >
+              Shut Down &amp; Exit
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -184,10 +246,11 @@ export const TurnOffModal: React.FC<TurnOffModalProps> = ({ isOpen, onClose }) =
   return createPortal(content, document.body);
 };
 
-export const TurnOffButton: React.FC<{ className?: string; style?: React.CSSProperties }> = ({
-  className = "",
-  style,
-}) => {
+export const TurnOffButton: React.FC<{
+  className?: string;
+  style?: React.CSSProperties;
+  onShutdown?: () => void;
+}> = ({ className = "", style, onShutdown }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -202,7 +265,11 @@ export const TurnOffButton: React.FC<{ className?: string; style?: React.CSSProp
         <span className="turn-off-icon">⏻</span>
         <span>Turn Off</span>
       </button>
-      <TurnOffModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <TurnOffModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onShutdown={onShutdown}
+      />
     </>
   );
 };

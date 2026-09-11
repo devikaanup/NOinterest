@@ -375,7 +375,7 @@ function useDashboardSound() {
   return { thud: () => tone(92, 0.14, "triangle", 0.16), ding: () => { tone(880, 0.22, "sine", 0.16); tone(1320, 0.28, "sine", 0.11); }, sting: () => { tone(92, 0.6, "sawtooth", 0.22); tone(47, 0.5, "square", 0.1); }, tick: () => tone(520 + Math.random() * 120, 0.05, "square", 0.035) };
 }
 
-function Dashboard() {
+function Dashboard({ onShutdown }: { onShutdown?: () => void }) {
   const [topic, setTopic] = useState("Random Ideas");
   const [pins, setPins] = useState<Pin[]>([]);
   const [search, setSearch] = useState("");
@@ -465,7 +465,7 @@ function Dashboard() {
             isConnected={isInternetConnected}
             onConnectSuccess={() => setIsInternetConnected(true)}
           />
-          <TurnOffButton />
+          <TurnOffButton onShutdown={onShutdown} />
         </div>
         <div className="try-closing-wrapper">
           <div className="try-closing-teaser">
@@ -771,7 +771,22 @@ export default function Home() {
     setSuccess(true);
   };
 
-  if (success) return <Dashboard />;
+  const handleShutdown = useCallback(() => {
+    completeRef.current = false;
+    setSuccess(false);
+    setVerified(false);
+    setSignInText("");
+    setPassword("");
+    document.documentElement.style.filter = "";
+  }, []);
+
+  useEffect(() => {
+    const onShutdownEvent = () => handleShutdown();
+    window.addEventListener("system-shutdown", onShutdownEvent);
+    return () => window.removeEventListener("system-shutdown", onShutdownEvent);
+  }, [handleShutdown]);
+
+  if (success) return <Dashboard onShutdown={handleShutdown} />;
 
   return (
     <main className={`page-shell ${isChaos ? "is-chaos" : ""}`}>
