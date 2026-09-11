@@ -16,6 +16,10 @@
 
 ---
 
+🔗 **Live Demo:** [https://promptwars-tau-lac.vercel.app/](https://nointerest.vercel.app/)
+
+---
+
 ## Key Features
 
 - **Atbash Cipher Authentication & Fluid CAPTCHA**: Keyboard inputs are dynamically encrypted using an Atbash cipher ($a \leftrightarrow z$). Authentication requires precise liquid pouring physics without overfilling or spilling.
@@ -37,43 +41,4 @@
 
 ---
 
-## Quick Start
 
-### Prerequisites
-
-- Node.js `v20.0.0` or higher
-- pnpm `v10.0.0` or higher (or npm/yarn)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/NOinterest.git
-cd NOinterest
-
-# Install dependencies
-pnpm install
-
-# Start the development server
-pnpm run dev
-```
-
-The application will be accessible at `http://localhost:5173`.
-
----
-
-## Command Reference
-
-| Command | Action |
-| :--- | :--- |
-| `pnpm run dev` | Start development server with hot-module reloading |
-| `pnpm run build` | Compile frontend assets and server entry point |
-| `pnpm run start` | Execute production Express server |
-| `pnpm run check` | Perform TypeScript type checking |
-| `pnpm run format` | Format codebase using Prettier |
-
----
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
