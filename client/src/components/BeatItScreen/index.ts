@@ -1,0 +1,1 @@
+export { BeatItScreen } from "./BeatItScreen";
