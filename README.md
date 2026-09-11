@@ -1,4 +1,4 @@
-# 😈 NOinterest
+# NOinterest
 
 > **The most hostile, anti-user Pinterest clone on the web.**  
 > *Things you didn’t ask for. No real auth. No mercy.*
@@ -11,30 +11,41 @@
 
 ---
 
-## 📌 What is NOinterest?
+## Overview
 
-**NOinterest** is a satirical web application that parodies modern dark patterns, frictionless social feeds, and hostile enterprise UX. Instead of an effortless algorithmic feed, users must survive physical obstacles, psychological traps, procedural audio harassment, and mini-games just to view pins of *Wet Socks* and *Cold Soup*.
-
----
-
-## ⚡ Hostile Features
-
-- **🔐 Atbash Auth & Fluid CAPTCHA**: Keyboard inputs are inverted via an Atbash cipher ($a \leftrightarrow z$). Login requires precision-pouring liquid into a cylinder without spilling a drop.
-- **🤹 Matter.js Physics Feed**: Pins fall as 2D rigid bodies governed by gravity. Grab, throw, and stack cards in real time.
-- **🔌 Among Us "Offline" Wiring**: Feed images are blocked until you drag elastic wires to matching breaker terminals.
-- **🎰 Document-Spinning Search**: Searching triggers a roulette wheel that spins the *entire page* 360° and replaces your search with depressing topics (92% rigged chance).
-- **🏃 The Exit Trap**: Closing the page forces you into a sub-pixel HTML5 *World's Hardest Game* escape maze while swarm decoy exit buttons trigger "WASTED" death screens.
-- **🛑 Deceptive System Terminal**: Turning off the app presents rigged math puzzles (`1 + 1 = 11` string concatenation) that punish wrong answers with extreme screen contrast.
+**NOinterest** is a satirical web application designed to parody modern dark patterns, frictionless social media feeds, and hostile user experiences. Rather than providing an effortless, algorithmically tailored feed, the application forces users through a series of physical obstacles, anti-user interaction mechanics, procedural audio cues, and embedded mini-games to access content.
 
 ---
 
-## 🚀 Quick Start
+## Key Features
+
+- **Atbash Cipher Authentication & Fluid CAPTCHA**: Keyboard inputs are dynamically encrypted using an Atbash cipher ($a \leftrightarrow z$). Authentication requires precise liquid pouring physics without overfilling or spilling.
+- **Matter.js Physics Feed**: Cards operate as 2D rigid bodies governed by simulated gravity ($g = 2.4$), allowing users to grab, throw, and stack elements dynamically.
+- **Circuit Wiring Requirement**: Image assets are restricted until the user completes an interactive breaker panel wiring task using elastic wire mechanics.
+- **Document-Spinning Search Roulette**: Search queries trigger a 360-degree document rotation and replace user input with pre-selected satirical topics with a 92% probability.
+- **Interactive Escape Canvas**: Attempting to exit the application launches an HTML5 collision game loop with moving decoy controls and browser event handlers.
+- **Deceptive Terminal Controls**: Power-down actions require solving trick terminal challenges that apply visual post-processing filters upon failure.
+
+---
+
+## Tech Stack
+
+- **Frontend**: React 19, TypeScript, Vite 7
+- **Styling**: Tailwind CSS v4, Vanilla CSS
+- **Physics Engine**: Matter.js
+- **Audio**: Web Audio API (procedural audio synthesis)
+- **Backend / Deployment**: Express 4, Node.js, Vercel, Render
+
+---
+
+## Quick Start
 
 ### Prerequisites
-- **Node.js** `v20+`
-- **pnpm** `v10+` (or `npm`)
 
-### Run Locally
+- Node.js `v20.0.0` or higher
+- pnpm `v10.0.0` or higher (or npm/yarn)
+
+### Installation
 
 ```bash
 # Clone the repository
@@ -44,26 +55,26 @@ cd NOinterest
 # Install dependencies
 pnpm install
 
-# Start dev server
+# Start the development server
 pnpm run dev
 ```
 
-Open `http://localhost:5173` to test your limits.
+The application will be accessible at `http://localhost:5173`.
 
 ---
 
-## 🛠️ Command Reference
+## Command Reference
 
 | Command | Action |
 | :--- | :--- |
-| `pnpm run dev` | Start development server |
-| `pnpm run build` | Build production bundle (Vite + Server) |
-| `pnpm run start` | Run production Express server |
-| `pnpm run check` | Run TypeScript type checking |
-| `pnpm run format` | Format codebase with Prettier |
+| `pnpm run dev` | Start development server with hot-module reloading |
+| `pnpm run build` | Compile frontend assets and server entry point |
+| `pnpm run start` | Execute production Express server |
+| `pnpm run check` | Perform TypeScript type checking |
+| `pnpm run format` | Format codebase using Prettier |
 
 ---
 
-## 📜 License
+## License
 
-Distributed under the **MIT License**.
+This project is licensed under the [MIT License](LICENSE).
