@@ -102,7 +102,7 @@ export const BeatItScreen: React.FC<BeatItScreenProps> = ({ onRestart }) => {
       </div>
 
       <div className="beat-it-actions">
-        <span className="beat-it-subtitle">The Gauntlet Has Been Broken</span>
+        <span className="beat-it-subtitle">The System Has Been Broken</span>
         {onRestart && (
           <button
             type="button"

@@ -816,11 +816,11 @@ export default function Home() {
       <div className="grain" aria-hidden="true" />
 
       {isChaos && <Dino />}
-      <div className="shell-ornament ornament-left" aria-hidden="true">01 / THE GAUNTLET</div>
+      <div className="shell-ornament ornament-left" aria-hidden="true">01 / NOINTEREST</div>
       <div className="shell-ornament ornament-right" aria-hidden="true">NO REAL AUTH · NO MERCY</div>
       <section className="card-wrap" style={{ transform: `translate3d(${jitter.x}px, ${jitter.y}px, 0) rotate(${jitter.rotate}deg)` }}>
         <div className="topline">
-          <div className="mark"><span className="mark-dot" /> TG / 001</div>
+          <div className="mark"><span className="mark-dot" /> NI / 001</div>
           <div className="topline-note">A sign-in experience</div>
         </div>
         <div className="hero-copy">
@@ -886,7 +886,7 @@ export default function Home() {
                 ? signInText.trim().toLowerCase() === "sign in"
                   ? "Phrase matched. Press Enter or click to proceed."
                   : "Type 'sign in' to sign in (keyboard inverted: a ↔ z, b ↔ y)."
-                : "Complete the gauntlet to continue."}
+                : "Complete the verification to continue."}
             </div>
             <div className="sign-in-action-cluster">
               <input
@@ -924,7 +924,7 @@ export default function Home() {
         </div>
 
         <div className="card-footer">
-          <span>© 2026 The Gauntlet</span>
+          <span>© 2026 NOinterest</span>
           <span>There is no help desk.</span>
         </div>
       </section>
